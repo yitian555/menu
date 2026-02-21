@@ -522,7 +522,7 @@
     <div class="app-container">
         <div id="home-page" class="page active">
             <div class="header">
-                <h1 id="page-main-title">🍽️ 杨波独家菜单</h1>
+                <h1 id="page-main-title">🍽️ 杨家私房菜</h1>
             </div>
 
             <div class="category-bar" id="category-bar">
@@ -875,7 +875,7 @@
                     document.querySelector('[data-page="home"]').classList.add('active');
                     item.classList.remove('active');
                 } else {
-                    pageMainTitle.textContent = page === 'favorites' ? '⭐ 我的收藏' : '🍽️ 杨波独家菜单';
+                    pageMainTitle.textContent = page === 'favorites' ? '⭐ 我的收藏' : '🍽️ 杨家私房菜';
                     renderCategories();
                     renderHomePage();
                 }
