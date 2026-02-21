@@ -1,336 +1,639 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>味享·扫码菜单 | 菜品·图片·评价</title>
-    <!-- 简单干净的风格，移动优先，图片自适应，突出评价 -->
+    <title>味享·触摸屏菜单</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
         }
+
         body {
-            background: #f7f5f2;
+            background: #f8f5f0;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 1rem 1rem 2rem;
         }
-        /* 主卡片模拟「菜单程序」界面 */
-        .menu-app {
+
+        /* 主容器 - 模拟单页应用 */
+        .app-container {
             max-width: 600px;
-            width: 100%;
+            margin: 0 auto;
             background: white;
-            border-radius: 32px 32px 24px 24px;
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
-            overflow: hidden;
-            padding: 1.8rem 1.5rem 2rem;
-            border: 1px solid rgba(224, 190, 150, 0.2);
+            min-height: 100vh;
+            position: relative;
+            box-shadow: 0 0 30px rgba(0,0,0,0.05);
         }
-        /* 头部：二维码入口 + 标题 */
-        .qr-header {
+
+        /* 页面切换 */
+        .page {
+            display: none;
+            padding: 1rem;
+            padding-bottom: 80px; /* 为底部导航留空间 */
+        }
+
+            .page.active {
+                display: block;
+            }
+
+        /* 头部导航 */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 0 1.5rem;
+            background: white;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+            .header h1 {
+                font-size: 1.8rem;
+                font-weight: 700;
+                color: #2c3e50;
+            }
+
+        .back-btn {
+            font-size: 1.5rem;
+            padding: 0.5rem 1rem;
+            background: none;
+            border: none;
+            color: #e67e22;
+            display: none;
+            cursor: pointer;
+        }
+
+            .back-btn.active {
+                display: block;
+            }
+
+        .cart-icon {
+            font-size: 1.5rem;
+            color: #2c3e50;
+        }
+
+        /* 菜单网格 */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        /* 菜品卡片 - 增大触摸区域 */
+        .dish-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+            cursor: pointer;
+            border: 1px solid #f0e9e0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+            .dish-card:active {
+                transform: scale(0.98);
+                background: #fcf9f5;
+            }
+
+            .dish-card img {
+                width: 100%;
+                height: 140px;
+                object-fit: cover;
+                background: #e9c9a0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 2rem;
+            }
+
+        .dish-info {
+            padding: 0.8rem;
+        }
+
+        .dish-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+            color: #2c3e50;
+        }
+
+        .dish-price {
+            color: #e67e22;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .rating-summary {
+            display: flex;
+            align-items: center;
+            margin-top: 0.3rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .stars {
+            color: #f5b342;
+            margin-right: 0.3rem;
+            letter-spacing: 2px;
+        }
+
+        /* 详情页 */
+        .dish-detail-image {
+            width: 100%;
+            height: 250px;
+            background: #e9c9a0;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+
+            .dish-detail-image img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+        .dish-detail-name {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 0.3rem;
+        }
+
+        .dish-detail-price {
+            font-size: 1.8rem;
+            color: #e67e22;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .dish-description {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #555;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        /* 评价区域 */
+        .reviews-section {
+            margin-top: 1.5rem;
+        }
+
+        .reviews-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .average-rating {
+            background: #f8f0e6;
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            font-size: 1.1rem;
+        }
+
+        .review-list {
+            list-style: none;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 1.5rem;
+            padding-right: 0.5rem;
+        }
+
+        .review-item {
+            background: #f9f7f4;
+            border-radius: 16px;
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .review-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .reviewer-name {
+            font-weight: 600;
+            margin-right: 0.8rem;
+            color: #2c3e50;
+        }
+
+        .review-stars {
+            color: #f5b342;
+            font-size: 0.9rem;
+        }
+
+        .review-date {
+            margin-left: auto;
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        .review-text {
+            color: #444;
+            line-height: 1.4;
+        }
+
+        /* 评价输入区 */
+        .add-review {
+            background: white;
+            border-top: 1px solid #eee;
+            padding: 1rem 0;
+        }
+
+        .rating-input {
             display: flex;
             align-items: center;
             gap: 1rem;
-            margin-bottom: 2rem;
-            background: #fefaf5;
-            border-radius: 100px;
-            padding: 0.5rem 1rem 0.5rem 0.8rem;
-            border: 1px dashed #c9ab8b;
+            margin-bottom: 1rem;
         }
-        .qr-code-symbol {
-            background: #1e1e1e;
-            color: white;
-            width: 52px;
-            height: 52px;
-            border-radius: 50%;
+
+        .star-rating {
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            font-size: 8px;
-            line-height: 1.2;
-            font-weight: 300;
-            border: 2px solid #e1b282;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            flex-direction: row-reverse;
+            justify-content: flex-end;
+            gap: 0.3rem;
         }
-        .qr-code-symbol span {
-            font-size: 20px;
-            letter-spacing: -1px;
-            font-weight: 500;
-        }
-        .qr-header p {
-            font-size: 0.95rem;
-            color: #5e4632;
-            font-weight: 500;
-            background: rgba(255,215,175,0.3);
-            padding: 0.3rem 0.8rem;
-            border-radius: 40px;
-        }
-        .qr-header strong {
-            color: #a1662f;
-            font-size: 1.1rem;
-        }
-        /* 介绍语 */
-        .intro {
-            margin-bottom: 1.8rem;
-            border-left: 5px solid #d48c5b;
-            padding-left: 1rem;
-            color: #2e241b;
-            font-weight: 350;
-            font-size: 1rem;
-            background: linear-gradient(to right, #fff6ec, transparent);
-        }
-        /* 菜谱列表 — 卡片网格 */
-        .menu-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 1.8rem;
-        }
-        /* 单个菜品卡片 */
-        .menu-item {
-            display: flex;
-            flex-direction: row;
-            background: #ffffff;
-            border-radius: 24px;
-            box-shadow: 0 6px 16px rgba(158, 115, 72, 0.1);
-            overflow: hidden;
-            transition: transform 0.15s ease;
-            border: 1px solid #f0e2d2;
-            padding: 0.8rem;
-        }
-        .menu-item:hover {
-            transform: scale(1.01);
-            box-shadow: 0 10px 20px rgba(170, 120, 70, 0.15);
-        }
-        /* 图片区域 固定宽高 16:9 裁剪，适应不同图片 */
-        .item-image {
-            flex: 0 0 120px;
-            height: 120px;
-            border-radius: 18px;
-            background: #f9ede1;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid #ead6c4;
-        }
-        .item-image img {
+
+            .star-rating input {
+                display: none;
+            }
+
+            .star-rating label {
+                font-size: 2rem;
+                color: #ddd;
+                cursor: pointer;
+                transition: color 0.2s;
+            }
+
+                .star-rating input:checked ~ label,
+                .star-rating label:hover,
+                .star-rating label:hover ~ label {
+                    color: #f5b342;
+                }
+
+        .review-input {
             width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-            background: #eee4d8;
+            padding: 1rem;
+            border: 2px solid #eee;
+            border-radius: 16px;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            resize: none;
         }
-        /* 菜品内容区 */
-        .item-info {
-            flex: 1;
-            padding: 0.2rem 0 0.2rem 1rem;
+
+            .review-input:focus {
+                outline: none;
+                border-color: #e67e22;
+            }
+
+        .submit-review {
+            background: #e67e22;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 40px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            width: 100%;
+            cursor: pointer;
+            transition: background 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+            .submit-review:active {
+                background: #cf6d17;
+            }
+
+        /* 底部导航 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 1rem 0;
+            border-top: 1px solid #f0e9e0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.03);
+        }
+
+        .nav-item {
             display: flex;
             flex-direction: column;
-            justify-content: center;
-        }
-        .item-name {
-            font-size: 1.35rem;
-            font-weight: 700;
-            letter-spacing: -0.3px;
-            color: #321f12;
-            margin-bottom: 0.4rem;
-            line-height: 1.2;
-        }
-        /* 评价区域 星星 + 评语 */
-        .item-review {
-            background: #fbf3e9;
-            border-radius: 30px;
-            padding: 0.4rem 1rem 0.4rem 0.9rem;
-            display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-            margin-top: 0.3rem;
-            border: 1px solid #eedbcb;
-            width: fit-content;
+            gap: 0.2rem;
+            color: #999;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
         }
-        .stars {
-            color: #f5b342;
-            font-size: 1.2rem;
-            letter-spacing: 2px;
-            display: flex;
-            align-items: center;
-        }
-        .review-text {
-            font-size: 0.85rem;
-            color: #735f4e;
-            font-style: italic;
-            font-weight: 500;
-            background: white;
-            padding: 0.2rem 0.7rem;
-            border-radius: 40px;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 150px;
-        }
-        /* 装饰性二维码底部说明 */
-        .qr-footnote {
-            margin-top: 2.5rem;
+
+            .nav-item.active {
+                color: #e67e22;
+            }
+
+            .nav-item span:first-child {
+                font-size: 1.5rem;
+            }
+
+        /* 空状态 */
+        .empty-state {
             text-align: center;
-            background: #f0e3d8;
-            border-radius: 48px;
-            padding: 0.8rem 1.2rem;
-            font-size: 0.95rem;
-            color: #482e1c;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.6rem;
-            border: 1px solid #dcc2ac;
-        }
-        .qr-footnote .fake-qr {
-            background: #1f1f1f;
-            color: #f0dab6;
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            font-weight: 600;
-        }
-        hr {
-            border: none;
-            border-top: 2px dotted #e2cfbb;
-            margin: 1rem 0;
-        }
-        /* 小贴士响应式 */
-        @media (max-width: 450px) {
-            .menu-app { padding: 1.2rem 1rem; }
-            .menu-item { flex-direction: column; }
-            .item-image { width: 100%; height: 170px; flex-basis: auto; margin-bottom: 0.5rem; }
-            .item-info { padding-left: 0; }
-            .qr-header { flex-wrap: wrap; }
+            color: #999;
+            padding: 2rem;
         }
     </style>
 </head>
 <body>
-    <div class="menu-app">
-        <!-- 头部二维码入口标志：模拟通过二维码访问 -->
-        <div class="qr-header">
-            <div class="qr-code-symbol">
-                <span>⬛⬛</span>
-                <span>⬜⬛</span>
-                <span style="font-size:6px; margin-top:2px;">扫码</span>
-            </div>
-            <p><strong>📷 扫描桌边二维码</strong> · 进入味享菜单</p>
-        </div>
-
-        <div class="intro">
-            ⭐ 主厨甄选 · 真实顾客评价
-        </div>
-
-        <!-- 菜单列表 — 每个菜都有 名称、图片、评价 -->
-        <div class="menu-grid">
-
-            <!-- 菜品 1 -->
-            <div class="menu-item">
-                <div class="item-image">
-                    <!-- 用 emoji 或 内联svg模拟图片，真实情境会放实际图片，这里采用纯色背景+文字表示菜品图，清晰传达图片占位 -->
-                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='160' viewBox='0 0 200 160'%3E%3Crect width='200' height='160' fill='%23e1c6aa'/%3E%3Ctext x='30' y='95' font-family='system-ui, sans-serif' font-size='32' fill='%237a5a3a' font-weight='bold'%3E🍲 东坡肉%3C/text%3E%3C/svg%3E"
-                         alt="东坡肉实拍图">
-                </div>
-                <div class="item-info">
-                    <div class="item-name">🔥 东坡煨肉</div>
-                    <div class="item-review">
-                        <span class="stars">★★★★★</span>
-                        <span class="review-text">“肥而不腻，入口即化”</span>
-                    </div>
-                    <!-- 附加简短评价2（可选展示多个评价风格，但菜单只需体现用户评价，可融合） -->
-                    <div style="font-size:0.75rem; color:#b2947a; margin-top: 0.3rem;">👍 128 条好评 · 桌桌必点</div>
-                </div>
+    <div class="app-container">
+        <!-- 首页 -->
+        <div id="home-page" class="page active">
+            <div class="header">
+                <h1>🍽️ 味享菜单</h1>
+                <div class="cart-icon">🛒</div>
             </div>
 
-            <!-- 菜品 2 -->
-            <div class="menu-item">
-                <div class="item-image">
-                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='160' viewBox='0 0 200 160'%3E%3Crect width='200' height='160' fill='%23d9bc9a'/%3E%3Ctext x='20' y='95' font-family='system-ui, sans-serif' font-size='32' fill='%235d432c'%3E🦐 醉熟虾%3C/text%3E%3C/svg%3E"
-                         alt="熟醉虾">
-                </div>
-                <div class="item-info">
-                    <div class="item-name">🦐 花雕熟醉虾</div>
-                    <div class="item-review">
-                        <span class="stars">★★★★☆</span>
-                        <span class="review-text">“酒香浓郁，虾肉弹牙”</span>
-                    </div>
-                    <div style="font-size:0.75rem; color:#b2947a; margin-top: 0.3rem;">🧊 夏日限定 · 98%推荐</div>
-                </div>
-            </div>
-
-            <!-- 菜品 3 加入更多评价元素 -->
-            <div class="menu-item">
-                <div class="item-image">
-                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='160' viewBox='0 0 200 160'%3E%3Crect width='200' height='160' fill='%23b7a186'/%3E%3Ctext x='20' y='95' font-family='system-ui, sans-serif' font-size='32' fill='%233f2e1e'%3E🍄 松露饭%3C/text%3E%3C/svg%3E"
-                         alt="黑松露烩饭">
-                </div>
-                <div class="item-info">
-                    <div class="item-name">🍚 黑松露鹅肝烩饭</div>
-                    <div class="item-review">
-                        <span class="stars">★★★★★</span>
-                        <span class="review-text">“香气炸弹，回味无穷”</span>
-                    </div>
-                    <div style="font-size:0.75rem; color:#b2947a; margin-top: 0.3rem;">📝 美食家“老饕”力荐</div>
-                </div>
-            </div>
-
-            <!-- 菜品 4 再次强化图片及评价 -->
-            <div class="menu-item">
-                <div class="item-image">
-                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='160' viewBox='0 0 200 160'%3E%3Crect width='200' height='160' fill='%23cfa776'/%3E%3Ctext x='30' y='95' font-family='system-ui, sans-serif' font-size='32' fill='%234f351d'%3E🍣 刺身拼%3C/text%3E%3C/svg%3E"
-                         alt="海鲜刺身拼">
-                </div>
-                <div class="item-info">
-                    <div class="item-name">🐟 极上刺身拼盘</div>
-                    <div class="item-review">
-                        <span class="stars">★★★★★</span>
-                        <span class="review-text">“厚切新鲜，山葵现磨”</span>
-                    </div>
-                    <div style="font-size:0.75rem; color:#b2947a; margin-top: 0.3rem;">⭐ 生食控最爱 · 每日限量</div>
-                </div>
+            <!-- 菜品网格 -->
+            <div class="menu-grid" id="menu-grid">
+                <!-- JS动态生成 -->
             </div>
         </div>
 
-        <!-- 分界线，下方展示更多评价汇总，同时再次强调二维码访问方式 -->
-        <hr>
-        <div class="qr-footnote">
-            <span class="fake-qr">◼︎◼︎</span>
-            <span>📱 其他顾客实时评价 · 长按保存菜单   <br>👥 今日扫码访问: 147人</span>
-        </div>
-
-        <!-- 为了强化“菜单管理程序”的概念，增加一个极简后台数据示意（模拟程序的一部分） -->
-        <div style="background: #fcf9f5; border-radius: 20px; margin-top: 1.8rem; padding: 1rem 1.2rem; border: 1px solid #e8d9cb; font-size: 0.9rem;">
-            <div style="display: flex; gap: 1rem; align-items: center; color: #4e3e2e;">
-                <span>🛠️ 管理视图</span>
-                <span style="width: 6px; height: 6px; background: #78b56b; border-radius: 10px;"></span>
-                <span style="color:#836b54;">菜品状态: 已发布4道 | 图片已优化 | 评价自动同步</span>
+        <!-- 详情页 -->
+        <div id="detail-page" class="page">
+            <div class="header">
+                <button class="back-btn" id="back-btn">←</button>
+                <h1 id="detail-title">菜品详情</h1>
+                <div class="cart-icon">🛒</div>
             </div>
-            <!-- 简单的评价条动态 -->
-            <div style="margin-top: 12px; background-color: #efe2d4; border-radius: 14px; padding: 8px 12px;">
-                <span style="font-weight:600;">📢 最新用户评价:</span>
-                <marquee behavior="scroll" direction="left" scrollamount="3" style="width: 100%; font-size:0.85rem; color:#5b4432;">🥢 小黄鱼超嫩！ —— 匿名食客 · 东坡肉太下饭了！ —— 小星星 · 醉虾绝配干白 —— 美食家阿戴</marquee>
+
+            <div id="detail-content">
+                <!-- JS动态生成 -->
             </div>
         </div>
 
-        <!-- 额外说明：二维码功能示意，完全满足“通过二维码访问菜谱界面” -->
-        <div style="margin-top: 1.2rem; background: #e7dacd; border-radius: 14px; padding: 0.7rem 1rem; text-align: center; font-size: 0.85rem; color: #392d21; border: 1px solid #c9b19b;">
-            📌 本界面模拟真实二维码访问场景：服务员引导扫描，即可浏览菜品名称、实拍图片及用户评价。
+        <!-- 底部导航 -->
+        <div class="bottom-nav">
+            <div class="nav-item active" data-page="home">
+                <span>🏠</span>
+                <span>首页</span>
+            </div>
+            <div class="nav-item" data-page="favorites">
+                <span>❤️</span>
+                <span>收藏</span>
+            </div>
+            <div class="nav-item" data-page="profile">
+                <span>👤</span>
+                <span>我的</span>
+            </div>
         </div>
     </div>
-    <!-- 页脚装饰 -->
-    <div style="margin-top: 0.8rem; font-size: 0.75rem; color: #b29579;">🍽️ 扫一扫 · 看菜谱 · 真实评价 · 图片均实物拍摄</div>
+
+    <script>
+        // ---------- 模拟数据 ----------
+        const dishes = [
+            {
+                id: 1,
+                name: '东坡煨肉',
+                price: 68,
+                image: 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'300\' height=\'200\' viewBox=\'0 0 300 200\'%3E%3Crect width=\'300\' height=\'200\' fill=\'%23e1c6aa\'/%3E%3Ctext x=\'40\' y=\'120\' font-family=\'system-ui\' font-size=\'32\' fill=\'%237a5a3a\'%3E🥩 东坡肉%3C/text%3E%3C/svg%3E',
+                description: '精选五花肉，文火慢炖4小时，肥而不腻，入口即化。搭配秘制酱料，是杭州传统名菜的代表。',
+                rating: 4.8,
+                reviews: [
+                    { id: 1, user: '美食家老王', rating: 5, text: '太香了！肥而不腻，入口即化，必点！', date: '2024-01-15' },
+                    { id: 2, user: '小芳', rating: 5, text: '配米饭绝了，酱汁浓郁', date: '2024-01-14' },
+                    { id: 3, user: '张先生', rating: 4, text: '味道很好，就是稍微有点咸', date: '2024-01-10' }
+                ]
+            },
+            {
+                id: 2,
+                name: '花雕熟醉虾',
+                price: 88,
+                image: 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'300\' height=\'200\' viewBox=\'0 0 300 200\'%3E%3Crect width=\'300\' height=\'200\' fill=\'%23d9bc9a\'/%3E%3Ctext x=\'40\' y=\'120\' font-family=\'system-ui\' font-size=\'32\' fill=\'%235d432c\'%3E🦐 醉熟虾%3C/text%3E%3C/svg%3E',
+                description: '活虾蒸熟后浸入陈年花雕酒，酒香渗透，虾肉弹牙。夏日限定，清凉开胃。',
+                rating: 4.6,
+                reviews: [
+                    { id: 4, user: '酒鬼李', rating: 5, text: '酒香浓郁，虾很新鲜', date: '2024-01-13' },
+                    { id: 5, user: '小美', rating: 4, text: '味道独特，适合下酒', date: '2024-01-12' }
+                ]
+            },
+            {
+                id: 3,
+                name: '黑松露鹅肝烩饭',
+                price: 128,
+                image: 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'300\' height=\'200\' viewBox=\'0 0 300 200\'%3E%3Crect width=\'300\' height=\'200\' fill=\'%23b7a186\'/%3E%3Ctext x=\'40\' y=\'120\' font-family=\'system-ui\' font-size=\'28\' fill=\'%233f2e1e\'%3E🍄 松露饭%3C/text%3E%3C/svg%3E',
+                description: '意大利进口黑松露，搭配香煎鹅肝，奶油烩饭浓郁醇厚，每一口都是奢华享受。',
+                rating: 4.9,
+                reviews: [
+                    { id: 6, user: '吃货小王子', rating: 5, text: '太惊艳了！鹅肝入口即化', date: '2024-01-11' },
+                    { id: 7, user: 'Lisa', rating: 5, text: '松露香气很足，分量刚好', date: '2024-01-09' }
+                ]
+            },
+            {
+                id: 4,
+                name: '极上刺身拼盘',
+                price: 198,
+                image: 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'300\' height=\'200\' viewBox=\'0 0 300 200\'%3E%3Crect width=\'300\' height=\'200\' fill=\'%23cfa776\'/%3E%3Ctext x=\'40\' y=\'120\' font-family=\'system-ui\' font-size=\'32\' fill=\'%234f351d\'%3E🍣 刺身拼%3C/text%3E%3C/svg%3E',
+                description: '三文鱼、金枪鱼、甜虾、北极贝，每日新鲜空运，厚切口感，搭配现磨山葵。',
+                rating: 4.7,
+                reviews: [
+                    { id: 8, user: '刺身控', rating: 5, text: '非常新鲜！甜虾绝了', date: '2024-01-08' },
+                    { id: 9, user: '小雅', rating: 4, text: '品质不错，就是有点贵', date: '2024-01-07' }
+                ]
+            }
+        ];
+
+        // 当前选中的菜品
+        let currentDish = null;
+
+        // ---------- DOM 元素 ----------
+        const homePage = document.getElementById('home-page');
+        const detailPage = document.getElementById('detail-page');
+        const menuGrid = document.getElementById('menu-grid');
+        const detailContent = document.getElementById('detail-content');
+        const backBtn = document.getElementById('back-btn');
+        const navItems = document.querySelectorAll('.nav-item');
+
+        // ---------- 初始化首页 ----------
+        function renderHomePage() {
+            menuGrid.innerHTML = dishes.map(dish => `
+                <div class="dish-card" data-dish-id="${dish.id}">
+                    <img src="${dish.image}" alt="${dish.name}">
+                    <div class="dish-info">
+                        <div class="dish-name">${dish.name}</div>
+                        <div class="dish-price">¥${dish.price}</div>
+                        <div class="rating-summary">
+                            <span class="stars">${'★'.repeat(Math.round(dish.rating))}${'☆'.repeat(5-Math.round(dish.rating))}</span>
+                            <span>${dish.rating}</span>
+                            <span style="margin-left: 0.5rem;">(${dish.reviews.length}条评价)</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // 为每个卡片添加点击事件
+            document.querySelectorAll('.dish-card').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    const dishId = parseInt(card.dataset.dishId);
+                    const dish = dishes.find(d => d.id === dishId);
+                    if (dish) {
+                        showDetailPage(dish);
+                    }
+                });
+            });
+        }
+
+        // ---------- 显示详情页 ----------
+        function showDetailPage(dish) {
+            currentDish = dish;
+
+            // 计算平均分
+            const avgRating = (dish.reviews.reduce((sum, r) => sum + r.rating, 0) / dish.reviews.length).toFixed(1);
+
+            // 渲染详情页内容
+            detailContent.innerHTML = `
+                <div class="dish-detail-image">
+                    <img src="${dish.image}" alt="${dish.name}">
+                </div>
+                <div class="dish-detail-name">${dish.name}</div>
+                <div class="dish-detail-price">¥${dish.price}</div>
+                <div class="dish-description">${dish.description}</div>
+
+                <div class="reviews-section">
+                    <div class="reviews-title">
+                        顾客评价
+                        <span class="average-rating">⭐ ${avgRating}</span>
+                    </div>
+
+                    <ul class="review-list" id="review-list">
+                        ${dish.reviews.map(review => `
+                            <li class="review-item">
+                                <div class="review-header">
+                                    <span class="reviewer-name">${review.user}</span>
+                                    <span class="review-stars">${'★'.repeat(review.rating)}${'☆'.repeat(5-review.rating)}</span>
+                                    <span class="review-date">${review.date}</span>
+                                </div>
+                                <div class="review-text">${review.text}</div>
+                            </li>
+                        `).join('')}
+                    </ul>
+
+                    <div class="add-review">
+                        <div class="rating-input">
+                            <span>给个评价：</span>
+                            <div class="star-rating" id="star-rating">
+                                <input type="radio" name="rating" id="star5" value="5"><label for="star5">★</label>
+                                <input type="radio" name="rating" id="star4" value="4"><label for="star4">★</label>
+                                <input type="radio" name="rating" id="star3" value="3"><label for="star3">★</label>
+                                <input type="radio" name="rating" id="star2" value="2"><label for="star2">★</label>
+                                <input type="radio" name="rating" id="star1" value="1"><label for="star1">★</label>
+                            </div>
+                        </div>
+                        <textarea class="review-input" id="review-text" placeholder="分享你的用餐体验..." rows="3"></textarea>
+                        <button class="submit-review" id="submit-review">提交评价</button>
+                    </div>
+                </div>
+            `;
+
+            // 切换页面
+            homePage.classList.remove('active');
+            detailPage.classList.add('active');
+            backBtn.classList.add('active');
+
+            // 为提交按钮添加事件
+            document.getElementById('submit-review').addEventListener('click', submitReview);
+        }
+
+        // ---------- 提交评价 ----------
+        function submitReview() {
+            if (!currentDish) return;
+
+            // 获取评分
+            const ratingInputs = document.getElementsByName('rating');
+            let selectedRating = 0;
+            for (let input of ratingInputs) {
+                if (input.checked) {
+                    selectedRating = parseInt(input.value);
+                    break;
+                }
+            }
+
+            // 获取评论文本
+            const reviewText = document.getElementById('review-text').value.trim();
+
+            // 验证
+            if (selectedRating === 0) {
+                alert('请给个评分吧~');
+                return;
+            }
+            if (!reviewText) {
+                alert('写点评价内容吧~');
+                return;
+            }
+
+            // 创建新评价
+            const newReview = {
+                id: Date.now(),
+                user: '匿名食客',
+                rating: selectedRating,
+                text: reviewText,
+                date: new Date().toISOString().slice(0, 10)
+            };
+
+            // 添加到当前菜品的评价列表
+            currentDish.reviews.push(newReview);
+
+            // 重新刷新详情页
+            showDetailPage(currentDish);
+
+            // 滚动到评价列表
+            setTimeout(() => {
+                document.querySelector('.reviews-section').scrollIntoView({ behavior: 'smooth' });
+            }, 100);
+        }
+
+        // ---------- 返回首页 ----------
+        backBtn.addEventListener('click', () => {
+            homePage.classList.add('active');
+            detailPage.classList.remove('active');
+            backBtn.classList.remove('active');
+        });
+
+        // ---------- 底部导航切换 ----------
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                // 移除所有active
+                navItems.forEach(nav => nav.classList.remove('active'));
+                item.classList.add('active');
+
+                const page = item.dataset.page;
+                if (page === 'home') {
+                    homePage.classList.add('active');
+                    detailPage.classList.remove('active');
+                    backBtn.classList.remove('active');
+                } else {
+                    // 其他页面暂时提示
+                    alert('功能开发中，敬请期待~');
+                }
+            });
+        });
+
+        // ---------- 初始化 ----------
+        renderHomePage();
+    </script>
 </body>
 </html>
