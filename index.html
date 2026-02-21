@@ -3,24 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>味享·触摸屏菜单</title>
+    <title>味享·共享评价菜单</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         }
 
         body {
-            background: #f8f5f0;
+            background: #f5f2ed;
             min-height: 100vh;
+            display: flex;
+            justify-content: center;
         }
 
-        /* 主容器 - 模拟单页应用 */
         .app-container {
             max-width: 600px;
-            margin: 0 auto;
+            width: 100%;
             background: white;
             min-height: 100vh;
             position: relative;
@@ -31,7 +32,7 @@
         .page {
             display: none;
             padding: 1rem;
-            padding-bottom: 80px; /* 为底部导航留空间 */
+            padding-bottom: 80px;
         }
 
             .page.active {
@@ -48,6 +49,7 @@
             position: sticky;
             top: 0;
             z-index: 10;
+            border-bottom: 1px solid #f0e9e0;
         }
 
             .header h1 {
@@ -57,23 +59,19 @@
             }
 
         .back-btn {
-            font-size: 1.5rem;
-            padding: 0.5rem 1rem;
+            font-size: 1.8rem;
+            padding: 0.5rem 1rem 0.5rem 0;
             background: none;
             border: none;
             color: #e67e22;
             display: none;
             cursor: pointer;
+            font-weight: bold;
         }
 
             .back-btn.active {
                 display: block;
             }
-
-        .cart-icon {
-            font-size: 1.5rem;
-            color: #2c3e50;
-        }
 
         /* 菜单网格 */
         .menu-grid {
@@ -83,12 +81,11 @@
             margin-top: 0.5rem;
         }
 
-        /* 菜品卡片 - 增大触摸区域 */
         .dish-card {
             background: white;
             border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
             transition: transform 0.2s;
             cursor: pointer;
             border: 1px solid #f0e9e0;
@@ -97,7 +94,6 @@
 
             .dish-card:active {
                 transform: scale(0.98);
-                background: #fcf9f5;
             }
 
             .dish-card img {
@@ -105,10 +101,6 @@
                 height: 140px;
                 object-fit: cover;
                 background: #e9c9a0;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 2rem;
             }
 
         .dish-info {
@@ -118,35 +110,51 @@
         .dish-name {
             font-size: 1.2rem;
             font-weight: 600;
-            margin-bottom: 0.3rem;
+            margin-bottom: 0.5rem;
             color: #2c3e50;
-        }
-
-        .dish-price {
-            color: #e67e22;
-            font-weight: 700;
-            font-size: 1.1rem;
         }
 
         .rating-summary {
             display: flex;
             align-items: center;
-            margin-top: 0.3rem;
+            flex-wrap: wrap;
+            gap: 0.3rem;
             font-size: 0.9rem;
-            color: #666;
         }
 
-        .stars {
+        .score-badge {
+            background: #e67e22;
+            color: white;
+            font-weight: 700;
+            padding: 0.2rem 0.6rem;
+            border-radius: 30px;
+            font-size: 0.9rem;
+        }
+
+        .stars-container {
+            display: flex;
+            align-items: center;
+            gap: 0.2rem;
+        }
+
+        .star {
             color: #f5b342;
-            margin-right: 0.3rem;
-            letter-spacing: 2px;
+            font-size: 1rem;
+        }
+
+            .star.empty {
+                color: #ddd;
+            }
+
+        .review-count {
+            color: #888;
+            margin-left: 0.2rem;
         }
 
         /* 详情页 */
         .dish-detail-image {
             width: 100%;
             height: 250px;
-            background: #e9c9a0;
             border-radius: 20px;
             overflow: hidden;
             margin-bottom: 1.5rem;
@@ -158,56 +166,75 @@
                 object-fit: cover;
             }
 
+        .dish-detail-header {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
         .dish-detail-name {
             font-size: 2rem;
             font-weight: 700;
             color: #2c3e50;
-            margin-bottom: 0.3rem;
         }
 
-        .dish-detail-price {
-            font-size: 1.8rem;
-            color: #e67e22;
+        .dish-detail-score {
+            background: #e67e22;
+            color: white;
+            padding: 0.5rem 1.2rem;
+            border-radius: 40px;
             font-weight: 700;
-            margin-bottom: 1rem;
+            font-size: 1.5rem;
         }
 
         .dish-description {
             font-size: 1rem;
             line-height: 1.6;
             color: #555;
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
             padding-bottom: 1rem;
             border-bottom: 1px solid #eee;
         }
 
         /* 评价区域 */
         .reviews-section {
-            margin-top: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .reviews-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.2rem;
         }
 
         .reviews-title {
             font-size: 1.3rem;
             font-weight: 600;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
         }
 
-        .average-rating {
+        .average-box {
             background: #f8f0e6;
-            padding: 0.5rem 1rem;
+            padding: 0.4rem 1rem;
             border-radius: 30px;
-            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .average-score {
+            font-weight: 700;
+            color: #e67e22;
+            font-size: 1.2rem;
         }
 
         .review-list {
             list-style: none;
-            max-height: 300px;
+            max-height: 350px;
             overflow-y: auto;
             margin-bottom: 1.5rem;
-            padding-right: 0.5rem;
+            padding-right: 0.3rem;
         }
 
         .review-item {
@@ -220,18 +247,23 @@
         .review-header {
             display: flex;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
             margin-bottom: 0.5rem;
         }
 
         .reviewer-name {
             font-weight: 600;
-            margin-right: 0.8rem;
             color: #2c3e50;
         }
 
-        .review-stars {
-            color: #f5b342;
-            font-size: 0.9rem;
+        .review-score {
+            background: #e67e22;
+            color: white;
+            padding: 0.2rem 0.6rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 600;
         }
 
         .review-date {
@@ -243,45 +275,59 @@
         .review-text {
             color: #444;
             line-height: 1.4;
+            font-size: 0.95rem;
         }
 
         /* 评价输入区 */
         .add-review {
             background: white;
             border-top: 1px solid #eee;
-            padding: 1rem 0;
+            padding: 1.2rem 0 0.5rem;
         }
 
-        .rating-input {
+        .score-input {
+            margin-bottom: 1.2rem;
+        }
+
+        .score-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #555;
+        }
+
+        .score-slider {
             display: flex;
             align-items: center;
             gap: 1rem;
-            margin-bottom: 1rem;
         }
 
-        .star-rating {
-            display: flex;
-            flex-direction: row-reverse;
-            justify-content: flex-end;
-            gap: 0.3rem;
+        input[type=range] {
+            flex: 1;
+            height: 8px;
+            -webkit-appearance: none;
+            background: linear-gradient(to right, #f5b342 0%, #e67e22 100%);
+            border-radius: 10px;
         }
 
-            .star-rating input {
-                display: none;
-            }
-
-            .star-rating label {
-                font-size: 2rem;
-                color: #ddd;
+            input[type=range]::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                width: 28px;
+                height: 28px;
+                background: white;
+                border-radius: 50%;
+                box-shadow: 0 2px 10px rgba(230, 126, 34, 0.3);
+                border: 2px solid #e67e22;
                 cursor: pointer;
-                transition: color 0.2s;
             }
 
-                .star-rating input:checked ~ label,
-                .star-rating label:hover,
-                .star-rating label:hover ~ label {
-                    color: #f5b342;
-                }
+        .score-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #e67e22;
+            min-width: 3rem;
+            text-align: center;
+        }
 
         .review-input {
             width: 100%;
@@ -302,34 +348,38 @@
             background: #e67e22;
             color: white;
             border: none;
-            padding: 1rem 2rem;
+            padding: 1rem;
             border-radius: 40px;
             font-size: 1.1rem;
             font-weight: 600;
             width: 100%;
             cursor: pointer;
             transition: background 0.2s;
-            -webkit-tap-highlight-color: transparent;
         }
 
             .submit-review:active {
                 background: #cf6d17;
             }
 
+        .empty-state {
+            text-align: center;
+            color: #999;
+            padding: 2rem;
+            background: #f9f7f4;
+            border-radius: 16px;
+        }
+
         /* 底部导航 */
         .bottom-nav {
             position: fixed;
             bottom: 0;
-            left: 0;
-            right: 0;
             max-width: 600px;
-            margin: 0 auto;
+            width: 100%;
             background: white;
             display: flex;
             justify-content: space-around;
             padding: 1rem 0;
             border-top: 1px solid #f0e9e0;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.03);
         }
 
         .nav-item {
@@ -339,7 +389,6 @@
             gap: 0.2rem;
             color: #999;
             cursor: pointer;
-            -webkit-tap-highlight-color: transparent;
         }
 
             .nav-item.active {
@@ -349,13 +398,6 @@
             .nav-item span:first-child {
                 font-size: 1.5rem;
             }
-
-        /* 空状态 */
-        .empty-state {
-            text-align: center;
-            color: #999;
-            padding: 2rem;
-        }
     </style>
 </head>
 <body>
@@ -363,14 +405,10 @@
         <!-- 首页 -->
         <div id="home-page" class="page active">
             <div class="header">
-                <h1>🍽️ 味享菜单</h1>
-                <div class="cart-icon">🛒</div>
+                <h1>🍽️ 味享食评</h1>
+                <div></div> <!-- 占位保持平衡 -->
             </div>
-
-            <!-- 菜品网格 -->
-            <div class="menu-grid" id="menu-grid">
-                <!-- JS动态生成 -->
-            </div>
+            <div class="menu-grid" id="menu-grid"></div>
         </div>
 
         <!-- 详情页 -->
@@ -378,121 +416,160 @@
             <div class="header">
                 <button class="back-btn" id="back-btn">←</button>
                 <h1 id="detail-title">菜品详情</h1>
-                <div class="cart-icon">🛒</div>
+                <div></div>
             </div>
-
-            <div id="detail-content">
-                <!-- JS动态生成 -->
-            </div>
+            <div id="detail-content"></div>
         </div>
 
-        <!-- 底部导航 -->
+        <!-- 底部导航（简化） -->
         <div class="bottom-nav">
             <div class="nav-item active" data-page="home">
                 <span>🏠</span>
                 <span>首页</span>
             </div>
-            <div class="nav-item" data-page="favorites">
-                <span>❤️</span>
-                <span>收藏</span>
-            </div>
-            <div class="nav-item" data-page="profile">
-                <span>👤</span>
-                <span>我的</span>
+            <div class="nav-item" data-page="popular">
+                <span>🔥</span>
+                <span>热门</span>
             </div>
         </div>
     </div>
 
     <script>
-        // ---------- 模拟数据 ----------
-        const dishes = [
+        // ---------- 共享数据存储（使用 localStorage 实现跨用户共享）----------
+        // 注意：在同一台设备的同一浏览器上，不同用户访问会共享localStorage
+        // 要实现真正跨用户共享，需要后端，这里先用localStorage模拟
+
+        // 初始化菜品数据
+        const STORAGE_KEY = 'shared_menu_reviews';
+
+        // 默认菜品数据（没有价格）
+        const defaultDishes = [
             {
                 id: 1,
                 name: '东坡煨肉',
-                price: 68,
                 image: 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'300\' height=\'200\' viewBox=\'0 0 300 200\'%3E%3Crect width=\'300\' height=\'200\' fill=\'%23e1c6aa\'/%3E%3Ctext x=\'40\' y=\'120\' font-family=\'system-ui\' font-size=\'32\' fill=\'%237a5a3a\'%3E🥩 东坡肉%3C/text%3E%3C/svg%3E',
                 description: '精选五花肉，文火慢炖4小时，肥而不腻，入口即化。搭配秘制酱料，是杭州传统名菜的代表。',
-                rating: 4.8,
                 reviews: [
-                    { id: 1, user: '美食家老王', rating: 5, text: '太香了！肥而不腻，入口即化，必点！', date: '2024-01-15' },
-                    { id: 2, user: '小芳', rating: 5, text: '配米饭绝了，酱汁浓郁', date: '2024-01-14' },
-                    { id: 3, user: '张先生', rating: 4, text: '味道很好，就是稍微有点咸', date: '2024-01-10' }
+                    { id: 1, user: '美食家老王', score: 98, text: '太香了！肥而不腻，入口即化，必点！', date: '2024-01-15' },
+                    { id: 2, user: '小芳', score: 95, text: '配米饭绝了，酱汁浓郁', date: '2024-01-14' },
+                    { id: 3, user: '张先生', score: 85, text: '味道很好，就是稍微有点咸', date: '2024-01-10' }
                 ]
             },
             {
                 id: 2,
                 name: '花雕熟醉虾',
-                price: 88,
                 image: 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'300\' height=\'200\' viewBox=\'0 0 300 200\'%3E%3Crect width=\'300\' height=\'200\' fill=\'%23d9bc9a\'/%3E%3Ctext x=\'40\' y=\'120\' font-family=\'system-ui\' font-size=\'32\' fill=\'%235d432c\'%3E🦐 醉熟虾%3C/text%3E%3C/svg%3E',
                 description: '活虾蒸熟后浸入陈年花雕酒，酒香渗透，虾肉弹牙。夏日限定，清凉开胃。',
-                rating: 4.6,
                 reviews: [
-                    { id: 4, user: '酒鬼李', rating: 5, text: '酒香浓郁，虾很新鲜', date: '2024-01-13' },
-                    { id: 5, user: '小美', rating: 4, text: '味道独特，适合下酒', date: '2024-01-12' }
+                    { id: 4, user: '酒鬼李', score: 96, text: '酒香浓郁，虾很新鲜', date: '2024-01-13' },
+                    { id: 5, user: '小美', score: 88, text: '味道独特，适合下酒', date: '2024-01-12' }
                 ]
             },
             {
                 id: 3,
                 name: '黑松露鹅肝烩饭',
-                price: 128,
                 image: 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'300\' height=\'200\' viewBox=\'0 0 300 200\'%3E%3Crect width=\'300\' height=\'200\' fill=\'%23b7a186\'/%3E%3Ctext x=\'40\' y=\'120\' font-family=\'system-ui\' font-size=\'28\' fill=\'%233f2e1e\'%3E🍄 松露饭%3C/text%3E%3C/svg%3E',
                 description: '意大利进口黑松露，搭配香煎鹅肝，奶油烩饭浓郁醇厚，每一口都是奢华享受。',
-                rating: 4.9,
                 reviews: [
-                    { id: 6, user: '吃货小王子', rating: 5, text: '太惊艳了！鹅肝入口即化', date: '2024-01-11' },
-                    { id: 7, user: 'Lisa', rating: 5, text: '松露香气很足，分量刚好', date: '2024-01-09' }
+                    { id: 6, user: '吃货小王子', score: 99, text: '太惊艳了！鹅肝入口即化', date: '2024-01-11' },
+                    { id: 7, user: 'Lisa', score: 97, text: '松露香气很足，分量刚好', date: '2024-01-09' }
                 ]
             },
             {
                 id: 4,
                 name: '极上刺身拼盘',
-                price: 198,
                 image: 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'300\' height=\'200\' viewBox=\'0 0 300 200\'%3E%3Crect width=\'300\' height=\'200\' fill=\'%23cfa776\'/%3E%3Ctext x=\'40\' y=\'120\' font-family=\'system-ui\' font-size=\'32\' fill=\'%234f351d\'%3E🍣 刺身拼%3C/text%3E%3C/svg%3E',
                 description: '三文鱼、金枪鱼、甜虾、北极贝，每日新鲜空运，厚切口感，搭配现磨山葵。',
-                rating: 4.7,
                 reviews: [
-                    { id: 8, user: '刺身控', rating: 5, text: '非常新鲜！甜虾绝了', date: '2024-01-08' },
-                    { id: 9, user: '小雅', rating: 4, text: '品质不错，就是有点贵', date: '2024-01-07' }
+                    { id: 8, user: '刺身控', score: 98, text: '非常新鲜！甜虾绝了', date: '2024-01-08' },
+                    { id: 9, user: '小雅', score: 89, text: '品质不错，就是有点贵', date: '2024-01-07' }
                 ]
             }
         ];
 
-        // 当前选中的菜品
+        // 初始化/加载共享数据
+        function loadDishes() {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (stored) {
+                try {
+                    return JSON.parse(stored);
+                } catch (e) {
+                    return defaultDishes;
+                }
+            } else {
+                // 首次使用，保存默认数据
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultDishes));
+                return defaultDishes;
+            }
+        }
+
+        // 保存数据到localStorage
+        function saveDishes(dishes) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(dishes));
+        }
+
+        // 当前菜品数据
+        let dishes = loadDishes();
         let currentDish = null;
 
-        // ---------- DOM 元素 ----------
+        // DOM 元素
         const homePage = document.getElementById('home-page');
         const detailPage = document.getElementById('detail-page');
         const menuGrid = document.getElementById('menu-grid');
         const detailContent = document.getElementById('detail-content');
         const backBtn = document.getElementById('back-btn');
-        const navItems = document.querySelectorAll('.nav-item');
 
-        // ---------- 初始化首页 ----------
+        // ---------- 辅助函数：计算平均分（百分制）----------
+        function calculateAverage(reviews) {
+            if (!reviews || reviews.length === 0) return 0;
+            const sum = reviews.reduce((total, r) => total + r.score, 0);
+            return Math.round(sum / reviews.length);
+        }
+
+        // 生成星星显示（基于百分制转换为5星显示，但保留百分制数值）
+        function getStarsFromScore(avgScore) {
+            // 将百分制映射到5星 (0-100 -> 0-5)
+            const starRating = (avgScore / 20).toFixed(1);
+            const fullStars = Math.floor(starRating);
+            const halfStar = starRating - fullStars >= 0.5 ? 1 : 0;
+            const emptyStars = 5 - fullStars - halfStar;
+
+            let starsHtml = '';
+            for (let i = 0; i < fullStars; i++) starsHtml += '★';
+            if (halfStar) starsHtml += '½';
+            for (let i = 0; i < emptyStars; i++) starsHtml += '☆';
+
+            return starsHtml;
+        }
+
+        // ---------- 渲染首页 ----------
         function renderHomePage() {
-            menuGrid.innerHTML = dishes.map(dish => `
-                <div class="dish-card" data-dish-id="${dish.id}">
-                    <img src="${dish.image}" alt="${dish.name}">
-                    <div class="dish-info">
-                        <div class="dish-name">${dish.name}</div>
-                        <div class="dish-price">¥${dish.price}</div>
-                        <div class="rating-summary">
-                            <span class="stars">${'★'.repeat(Math.round(dish.rating))}${'☆'.repeat(5-Math.round(dish.rating))}</span>
-                            <span>${dish.rating}</span>
-                            <span style="margin-left: 0.5rem;">(${dish.reviews.length}条评价)</span>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
+            menuGrid.innerHTML = dishes.map(dish => {
+                const avgScore = calculateAverage(dish.reviews);
+                const stars = getStarsFromScore(avgScore);
+                const reviewCount = dish.reviews.length;
 
-            // 为每个卡片添加点击事件
+                return `
+                        <div class="dish-card" data-dish-id="${dish.id}">
+                            <img src="${dish.image}" alt="${dish.name}">
+                            <div class="dish-info">
+                                <div class="dish-name">${dish.name}</div>
+                                <div class="rating-summary">
+                                    <span class="score-badge">${avgScore}</span>
+                                    <span class="stars-container">${stars}</span>
+                                    <span class="review-count">(${reviewCount})</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+            }).join('');
+
+            // 添加点击事件
             document.querySelectorAll('.dish-card').forEach(card => {
-                card.addEventListener('click', (e) => {
+                card.addEventListener('click', () => {
                     const dishId = parseInt(card.dataset.dishId);
                     const dish = dishes.find(d => d.id === dishId);
-                    if (dish) {
-                        showDetailPage(dish);
-                    }
+                    if (dish) showDetailPage(dish);
                 });
             });
         }
@@ -501,108 +578,123 @@
         function showDetailPage(dish) {
             currentDish = dish;
 
-            // 计算平均分
-            const avgRating = (dish.reviews.reduce((sum, r) => sum + r.rating, 0) / dish.reviews.length).toFixed(1);
+            // 重新从全局数据获取最新评价（确保共享）
+            const freshDish = dishes.find(d => d.id === dish.id);
+            if (freshDish) currentDish = freshDish;
 
-            // 渲染详情页内容
+            const avgScore = calculateAverage(currentDish.reviews);
+            const reviewCount = currentDish.reviews.length;
+
+            // 渲染详情页
             detailContent.innerHTML = `
-                <div class="dish-detail-image">
-                    <img src="${dish.image}" alt="${dish.name}">
-                </div>
-                <div class="dish-detail-name">${dish.name}</div>
-                <div class="dish-detail-price">¥${dish.price}</div>
-                <div class="dish-description">${dish.description}</div>
-
-                <div class="reviews-section">
-                    <div class="reviews-title">
-                        顾客评价
-                        <span class="average-rating">⭐ ${avgRating}</span>
+                    <div class="dish-detail-image">
+                        <img src="${currentDish.image}" alt="${currentDish.name}">
                     </div>
 
-                    <ul class="review-list" id="review-list">
-                        ${dish.reviews.map(review => `
-                            <li class="review-item">
-                                <div class="review-header">
-                                    <span class="reviewer-name">${review.user}</span>
-                                    <span class="review-stars">${'★'.repeat(review.rating)}${'☆'.repeat(5-review.rating)}</span>
-                                    <span class="review-date">${review.date}</span>
-                                </div>
-                                <div class="review-text">${review.text}</div>
-                            </li>
-                        `).join('')}
-                    </ul>
+                    <div class="dish-detail-header">
+                        <div class="dish-detail-name">${currentDish.name}</div>
+                        <div class="dish-detail-score">${avgScore}</div>
+                    </div>
 
-                    <div class="add-review">
-                        <div class="rating-input">
-                            <span>给个评价：</span>
-                            <div class="star-rating" id="star-rating">
-                                <input type="radio" name="rating" id="star5" value="5"><label for="star5">★</label>
-                                <input type="radio" name="rating" id="star4" value="4"><label for="star4">★</label>
-                                <input type="radio" name="rating" id="star3" value="3"><label for="star3">★</label>
-                                <input type="radio" name="rating" id="star2" value="2"><label for="star2">★</label>
-                                <input type="radio" name="rating" id="star1" value="1"><label for="star1">★</label>
+                    <div class="dish-description">${currentDish.description}</div>
+
+                    <div class="reviews-section">
+                        <div class="reviews-header">
+                            <span class="reviews-title">📝 用户评价</span>
+                            <div class="average-box">
+                                <span>平均分</span>
+                                <span class="average-score">${avgScore}</span>
                             </div>
                         </div>
-                        <textarea class="review-input" id="review-text" placeholder="分享你的用餐体验..." rows="3"></textarea>
-                        <button class="submit-review" id="submit-review">提交评价</button>
+
+                        ${reviewCount === 0 ?
+                    `<div class="empty-state">暂无评价，来第一条吧！</div>` :
+                    `<ul class="review-list" id="review-list">
+                                ${currentDish.reviews.map(review => `
+                                    <li class="review-item">
+                                        <div class="review-header">
+                                            <span class="reviewer-name">${review.user}</span>
+                                            <span class="review-score">${review.score}</span>
+                                            <span class="review-date">${review.date}</span>
+                                        </div>
+                                        <div class="review-text">${review.text}</div>
+                                    </li>
+                                `).join('')}
+                            </ul>`
+                }
+
+                        <div class="add-review">
+                            <div class="score-input">
+                                <div class="score-label">评分（0-100分）</div>
+                                <div class="score-slider">
+                                    <input type="range" id="score-slider" min="0" max="100" value="90" step="1">
+                                    <span class="score-value" id="score-value">90</span>
+                                </div>
+                            </div>
+
+                            <textarea class="review-input" id="review-text" placeholder="分享你的用餐体验..." rows="3"></textarea>
+                            <button class="submit-review" id="submit-review">提交评价</button>
+                        </div>
                     </div>
-                </div>
-            `;
+                `;
+
+            // 绑定滑块事件
+            const slider = document.getElementById('score-slider');
+            const scoreValue = document.getElementById('score-value');
+            if (slider && scoreValue) {
+                slider.addEventListener('input', () => {
+                    scoreValue.textContent = slider.value;
+                });
+            }
+
+            // 绑定提交事件
+            document.getElementById('submit-review')?.addEventListener('click', submitReview);
 
             // 切换页面
             homePage.classList.remove('active');
             detailPage.classList.add('active');
             backBtn.classList.add('active');
-
-            // 为提交按钮添加事件
-            document.getElementById('submit-review').addEventListener('click', submitReview);
         }
 
-        // ---------- 提交评价 ----------
+        // ---------- 提交评价（共享存储）----------
         function submitReview() {
             if (!currentDish) return;
 
-            // 获取评分
-            const ratingInputs = document.getElementsByName('rating');
-            let selectedRating = 0;
-            for (let input of ratingInputs) {
-                if (input.checked) {
-                    selectedRating = parseInt(input.value);
-                    break;
-                }
-            }
-
-            // 获取评论文本
-            const reviewText = document.getElementById('review-text').value.trim();
+            const slider = document.getElementById('score-slider');
+            const score = parseInt(slider.value);
+            const text = document.getElementById('review-text').value.trim();
 
             // 验证
-            if (selectedRating === 0) {
-                alert('请给个评分吧~');
-                return;
-            }
-            if (!reviewText) {
-                alert('写点评价内容吧~');
+            if (!text) {
+                alert('请填写评价内容');
                 return;
             }
 
             // 创建新评价
             const newReview = {
-                id: Date.now(),
-                user: '匿名食客',
-                rating: selectedRating,
-                text: reviewText,
+                id: Date.now() + Math.random(),
+                user: '匿名食客', // 可以扩展为自定义昵称
+                score: score,
+                text: text,
                 date: new Date().toISOString().slice(0, 10)
             };
 
-            // 添加到当前菜品的评价列表
-            currentDish.reviews.push(newReview);
+            // 更新全局数据
+            const dishIndex = dishes.findIndex(d => d.id === currentDish.id);
+            if (dishIndex !== -1) {
+                dishes[dishIndex].reviews.push(newReview);
+                // 保存到localStorage（共享存储）
+                saveDishes(dishes);
+                // 更新当前菜品引用
+                currentDish = dishes[dishIndex];
+            }
 
             // 重新刷新详情页
             showDetailPage(currentDish);
 
             // 滚动到评价列表
             setTimeout(() => {
-                document.querySelector('.reviews-section').scrollIntoView({ behavior: 'smooth' });
+                document.querySelector('.reviews-section')?.scrollIntoView({ behavior: 'smooth' });
             }, 100);
         }
 
@@ -613,27 +705,38 @@
             backBtn.classList.remove('active');
         });
 
-        // ---------- 底部导航切换 ----------
-        navItems.forEach(item => {
+        // ---------- 底部导航 ----------
+        document.querySelectorAll('.nav-item').forEach(item => {
             item.addEventListener('click', () => {
-                // 移除所有active
-                navItems.forEach(nav => nav.classList.remove('active'));
+                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
                 item.classList.add('active');
 
-                const page = item.dataset.page;
-                if (page === 'home') {
+                if (item.dataset.page === 'home') {
                     homePage.classList.add('active');
                     detailPage.classList.remove('active');
                     backBtn.classList.remove('active');
                 } else {
-                    // 其他页面暂时提示
-                    alert('功能开发中，敬请期待~');
+                    alert('热门菜品功能开发中...');
                 }
             });
         });
 
         // ---------- 初始化 ----------
         renderHomePage();
+
+        // 可选：定期刷新数据（实现跨标签页共享）
+        window.addEventListener('storage', (e) => {
+            if (e.key === STORAGE_KEY) {
+                // 其他标签页修改了数据，重新加载
+                dishes = loadDishes();
+                renderHomePage();
+                if (currentDish) {
+                    // 如果当前在详情页，刷新当前菜品
+                    const updated = dishes.find(d => d.id === currentDish.id);
+                    if (updated) showDetailPage(updated);
+                }
+            }
+        });
     </script>
 </body>
 </html>
