@@ -3,21 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>独家菜单</title>
+    <title>独家菜单 - 臻享版</title>
     <style>
         /* --- 🎨 颜色与变量定义 --- */
         :root {
-            --primary-color: #ff6b6b; /* 主色调：珊瑚红（有食欲） */
-            --primary-light: #fff0f0; /* 浅主色（用于背景） */
-            --secondary-color: #fca048; /* 辅色：暖橙色（评分、星星） */
-            --bg-color: #fcfaf8; /* 整体背景：非常淡的暖灰色 */
-            --text-main: #2d3436; /* 主文本色 */
-            --text-muted: #888; /* 弱文本色 */
+            --primary-color: #ff6b6b;
+            --primary-light: #fff0f0;
+            --secondary-color: #fca048;
+            --bg-color: #fcfaf8;
+            --text-main: #2d3436;
+            --text-muted: #888;
             --card-bg: #ffffff;
-            --border-radius: 20px; /* 统一的圆角大小 */
+            --border-radius: 20px;
             --shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.04);
         }
-
         /* --- 基础样式 --- */
         * {
             margin: 0;
@@ -47,7 +46,7 @@
         .page {
             display: none;
             padding: 1rem;
-            padding-bottom: 90px;
+            padding-bottom: 100px;
             animation: fadeIn 0.3s ease;
         }
 
@@ -102,7 +101,6 @@
                 display: block;
             }
 
-        /* 加载状态 */
         .loading {
             display: flex;
             justify-content: center;
@@ -148,7 +146,7 @@
                 transform: translateY(-2px);
             }
 
-        /* --- 菜品卡片 (网格) --- */
+        /* --- 菜品卡片 --- */
         .menu-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
@@ -213,7 +211,7 @@
             gap: 3px;
         }
 
-        /* --- 详情页 --- */
+        /* --- 详情页 & 评价区 --- */
         .detail-cover {
             width: 100%;
             height: 280px;
@@ -270,7 +268,6 @@
             font-size: 1.05rem;
         }
 
-        /* 评价区 */
         .reviews-section h3 {
             margin-bottom: 1rem;
             font-size: 1.3rem;
@@ -283,6 +280,7 @@
             margin-bottom: 1rem;
             box-shadow: var(--shadow-soft);
             list-style: none;
+            position: relative;
         }
 
         .review-header {
@@ -312,7 +310,7 @@
             line-height: 1.5;
         }
 
-        /* 表单输入 */
+        /* 表单与按钮 */
         .review-input, .admin-input {
             width: 100%;
             padding: 1rem;
@@ -376,7 +374,188 @@
             cursor: pointer;
         }
 
-        /* --- 管理页 --- */
+        /* --- AI 助手页面 --- */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 160px);
+        }
+
+        .chat-box {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 5px;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            padding-bottom: 1rem;
+        }
+
+            .chat-box::-webkit-scrollbar {
+                width: 4px;
+            }
+
+            .chat-box::-webkit-scrollbar-thumb {
+                background: #ddd;
+                border-radius: 4px;
+            }
+
+        .chat-msg {
+            max-width: 85%;
+            padding: 1rem;
+            border-radius: 16px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            word-wrap: break-word;
+        }
+
+            .chat-msg.ai {
+                background: white;
+                border: 1px solid #eee;
+                align-self: flex-start;
+                border-bottom-left-radius: 4px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+                color: #333;
+            }
+
+            .chat-msg.user {
+                background: var(--primary-color);
+                color: white;
+                align-self: flex-end;
+                border-bottom-right-radius: 4px;
+                box-shadow: 0 4px 12px rgba(255,107,107,0.2);
+            }
+
+            .chat-msg img {
+                max-width: 100%;
+                border-radius: 8px;
+                margin-bottom: 8px;
+            }
+
+        .chat-input-wrapper {
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            background: white;
+            padding: 10px;
+            border-radius: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            margin-top: auto;
+            position: relative;
+        }
+
+        .chat-upload-btn {
+            background: #f1f2f6;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background 0.2s;
+        }
+
+        .chat-input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            font-size: 1rem;
+            outline: none;
+            padding: 10px 5px;
+            resize: none;
+            max-height: 100px;
+        }
+
+        .chat-send-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-weight: bold;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(255,107,107,0.3);
+        }
+
+        .chat-img-preview {
+            position: absolute;
+            top: -70px;
+            left: 10px;
+            background: white;
+            padding: 4px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+            .chat-img-preview img {
+                width: 50px;
+                height: 50px;
+                object-fit: cover;
+                border-radius: 4px;
+            }
+
+            .chat-img-preview .close-btn {
+                position: absolute;
+                top: -8px;
+                right: -8px;
+                background: #ff4757;
+                color: white;
+                border-radius: 50%;
+                width: 20px;
+                height: 20px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-size: 12px;
+                cursor: pointer;
+            }
+
+        /* --- 弹窗与其它 --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 1rem;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            background: white;
+            width: 100%;
+            max-width: 500px;
+            padding: 1.8rem;
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            animation: popIn 0.3s ease;
+        }
+
+        @keyframes popIn {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* 管理页 */
         .admin-section {
             background: white;
             padding: 1.8rem;
@@ -385,11 +564,6 @@
             box-shadow: var(--shadow-soft);
             border-top: 5px solid var(--primary-color);
         }
-
-            .admin-section h3 {
-                margin-bottom: 1.5rem;
-                color: var(--text-main);
-            }
 
         .admin-item {
             display: flex;
@@ -403,7 +577,6 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.02);
         }
 
-        /* 管理按钮：修改和删除 */
         .admin-actions {
             display: flex;
             gap: 8px;
@@ -430,59 +603,6 @@
             font-weight: bold;
         }
 
-        /* 描述省略 */
-        .admin-item-desc {
-            font-size: 0.85rem;
-            color: #636e72;
-            margin-top: 6px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            line-height: 1.4;
-        }
-
-        /* --- 弹窗样式 (Modal) --- */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            padding: 1rem;
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-        }
-
-        .modal-content {
-            background: white;
-            width: 100%;
-            max-width: 500px;
-            padding: 1.8rem;
-            border-radius: var(--border-radius);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        @keyframes popIn {
-            from {
-                transform: scale(0.9);
-                opacity: 0;
-            }
-
-            to {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-
-        /* --- 底部导航 --- */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -509,6 +629,7 @@
             font-size: 0.8rem;
             gap: 4px;
             transition: color 0.2s;
+            width: 25%;
         }
 
             .nav-item.active {
@@ -524,16 +645,39 @@
             .nav-item.active span:first-child {
                 transform: translateY(-2px);
             }
+
+        /* 脉冲动画(AI打字用) */
+        @keyframes pulseText {
+            0% {
+                opacity: 0.5;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0.5;
+            }
+        }
+
+        .ai-typing {
+            animation: pulseText 1.5s infinite;
+            color: var(--primary-color);
+            font-weight: bold;
+            text-align: center;
+            padding: 1rem;
+        }
     </style>
 </head>
 <body>
     <div class="app-container">
         <div id="home-page" class="page active">
             <div class="header">
-                <h1 id="page-main-title">🍽️ 杨家私房菜</h1>
+                <h1 id="page-main-title">🍽️ 臻享私房菜</h1>
             </div>
             <div class="category-bar" id="category-bar"></div>
-            <div id="home-loading" class="loading">加载中...</div>
+            <div id="home-loading" class="loading">美味加载中...</div>
             <div class="menu-grid" id="menu-grid"></div>
         </div>
 
@@ -543,8 +687,27 @@
                 <h1 id="detail-title">菜品详情</h1>
                 <div style="width:40px"></div>
             </div>
-            <div id="detail-loading" class="loading">加载评价中...</div>
+            <div id="detail-loading" class="loading">加载数据中...</div>
             <div id="detail-content" style="display: none;"></div>
+        </div>
+
+        <div id="ai-page" class="page">
+            <div class="header"><h1>🤖 AI 厨神助手</h1></div>
+            <div class="chat-container">
+                <div class="chat-box" id="chat-box">
+                    <div class="chat-msg ai">你好！我是本店的 AI 厨神。想知道菜怎么做？或者是拍一张食材/菜品的照片发给我，我帮你识别并生成专属菜谱！</div>
+                </div>
+                <div class="chat-input-wrapper">
+                    <div class="chat-img-preview" id="chat-img-preview-container">
+                        <img id="chat-img-preview" src="">
+                        <div class="close-btn" onclick="clearChatImage()">×</div>
+                    </div>
+                    <input type="file" id="chat-img-upload" accept="image/*" style="display:none;" onchange="handleChatImage(this)">
+                    <label for="chat-img-upload" class="chat-upload-btn">📷</label>
+                    <input type="text" id="chat-input" class="chat-input" placeholder="输入问题或上传图片..." onkeypress="if(event.key === 'Enter') sendChatMessage()">
+                    <button class="chat-send-btn" onclick="sendChatMessage()">➤</button>
+                </div>
+            </div>
         </div>
 
         <div id="admin-page" class="page">
@@ -565,27 +728,23 @@
 
         <div class="bottom-nav">
             <div class="nav-item active" id="nav-home" onclick="goHome()"><span>🏠</span><span>首页</span></div>
+            <div class="nav-item" id="nav-ai" onclick="switchPage('ai')"><span>🤖</span><span>AI厨神</span></div>
             <div class="nav-item" id="nav-fav" onclick="showFavorites()"><span>⭐</span><span>收藏夹</span></div>
-            <div class="nav-item" id="nav-admin" onclick="checkAdmin()"><span>⚙️</span><span>后厨管理</span></div>
+            <div class="nav-item" id="nav-admin" onclick="checkAdmin()"><span>⚙️</span><span>管理</span></div>
         </div>
     </div>
 
     <div id="edit-modal" class="modal-overlay">
         <div class="modal-content">
             <h3 style="margin-bottom: 1.5rem; color: var(--text-main); font-size: 1.4rem;">📝 修改菜品信息</h3>
-
             <label style="font-size: 0.9rem; color: #555; font-weight: bold;">菜品名称</label>
             <input type="text" id="edit-name" class="admin-input" placeholder="菜名">
-
             <label style="font-size: 0.9rem; color: #555; font-weight: bold;">分类</label>
             <input type="text" id="edit-cat" class="admin-input" placeholder="分类">
-
-            <label style="font-size: 0.9rem; color: #555; font-weight: bold;">更换图片 <span style="font-size: 0.8rem; font-weight: normal; color: #ff6b6b;">(不选代表使用原图)</span></label>
+            <label style="font-size: 0.9rem; color: #555; font-weight: bold;">更换图片 <span style="font-size: 0.8rem; font-weight: normal; color: #ff6b6b;">(不选代表原图)</span></label>
             <input type="file" id="edit-img-file" class="admin-input" accept="image/*" style="padding: 0.8rem 1rem;">
-
             <label style="font-size: 0.9rem; color: #555; font-weight: bold;">菜品描述</label>
             <textarea id="edit-desc" class="admin-input" placeholder="描述..." rows="3"></textarea>
-
             <div style="display: flex; gap: 10px; margin-top: 1rem;">
                 <button class="submit-btn" id="btn-save-edit" style="flex: 2;" onclick="saveEditDish()">保存修改</button>
                 <button class="btn-cancel" style="flex: 1;" onclick="closeEditModal()">取消</button>
@@ -594,9 +753,18 @@
     </div>
 
     <script>
+        // ==========================================
+        // 🛠️ 接口配置区
+        // ==========================================
+        // ⚠️ 请填入你的大模型接口、Key 和模型名称 ⚠️
+        const LLM_API_URL = 'https://api.chatanywhere.tech/v1/chat/completions';
+        const LLM_API_KEY = 'sk-jLEY93OLruSjyvZaenNKzxj2k5lMvgQ7zR3fqw0S4KWrftom';
+        const LLM_MODEL = 'gpt-4o';
+
         const API_URL = 'https://fwmxyvoekvcofbttfaba.supabase.co/rest/v1';
         const API_KEY = 'sb_publishable_QuDMdXCTwFXWCm2Vaigm8w_UFrHqCNP';
         const headers = { 'apikey': API_KEY, 'Authorization': `Bearer ${API_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=representation' };
+        // ==========================================
 
         let dishes = [];
         let currentCategory = '全部';
@@ -604,53 +772,41 @@
         let favoriteRecords = JSON.parse(localStorage.getItem('my_favorites')) || [];
         let currentlyEditingId = null;
 
-        // --- 前端图片压缩函数 (黑科技) ---
+        // 防止同一个菜品在同一时间被多次触发评价
+        let isAIGenerating = {};
+
+        // --- 图片压缩核心功能 ---
         function compressImage(file, maxWidth = 800, quality = 0.7) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
                 reader.onload = (event) => {
-                    const img = new Image();
-                    img.src = event.target.result;
+                    const img = new Image(); img.src = event.target.result;
                     img.onload = () => {
-                        let width = img.width;
-                        let height = img.height;
-
-                        // 只有当图片宽度大于我们设定的最大宽度时，才按比例缩小
-                        if (width > maxWidth) {
-                            height = Math.round((height * maxWidth) / width);
-                            width = maxWidth;
-                        }
-
-                        // 使用 canvas 重新绘制压缩后的图片
+                        let width = img.width, height = img.height;
+                        if (width > maxWidth) { height = Math.round((height * maxWidth) / width); width = maxWidth; }
                         const canvas = document.createElement('canvas');
-                        canvas.width = width;
-                        canvas.height = height;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0, width, height);
-
-                        // 将 canvas 导出为体积更小的 JPEG 格式文件
-                        canvas.toBlob((blob) => {
-                            const compressedFile = new File([blob], "compressed_" + file.name, {
-                                type: 'image/jpeg',
-                                lastModified: Date.now(),
-                            });
-                            resolve(compressedFile);
-                        }, 'image/jpeg', quality);
-                    };
-                    img.onerror = (error) => reject(error);
-                };
-                reader.onerror = (error) => reject(error);
+                        canvas.width = width; canvas.height = height;
+                        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+                        canvas.toBlob((blob) => resolve(new File([blob], file.name, { type: 'image/jpeg' })), 'image/jpeg', quality);
+                    }; img.onerror = reject;
+                }; reader.onerror = reject;
             });
         }
 
-        // --- 初始化数据 ---
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader(); reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result); reader.onerror = error => reject(error);
+            });
+        }
+
+        // --- 初始化 ---
         async function loadDishes() {
             document.getElementById('home-loading').style.display = 'flex';
             try {
                 const res = await fetch(`${API_URL}/dishes?select=*&order=id.desc`, { headers });
                 dishes = await res.json();
-
                 dishes.forEach(d => { d.likes = d.likes || 0; });
 
                 await Promise.all(dishes.map(async d => {
@@ -660,17 +816,13 @@
                     d.reviewCount = reviews.length;
                 }));
 
-                renderCategories();
-                renderHome();
-                renderAdminList();
+                renderCategories(); renderHome(); renderAdminList();
             } catch (e) { console.error(e); }
         }
 
-        // --- 导航与页面切换 ---
         function checkAdmin() {
             const pw = prompt("请输入管理密码：");
-            if (pw === "123456") { switchPage('admin'); }
-            else if (pw !== null) { alert("密码错误，禁止入内！"); }
+            if (pw === "123456") { switchPage('admin'); } else if (pw !== null) { alert("密码错误！"); }
         }
 
         function switchPage(page) {
@@ -681,59 +833,37 @@
         }
 
         function goHome() {
-            currentCategory = '全部';
-            document.getElementById('page-main-title').textContent = '🍽️ 杨家私房菜';
-            switchPage('home');
-            renderCategories();
-            renderHome();
+            currentCategory = '全部'; document.getElementById('page-main-title').textContent = '🍽️ 臻享私房菜';
+            switchPage('home'); renderCategories(); renderHome();
         }
 
         function showFavorites() {
-            document.getElementById('page-main-title').textContent = '⭐ 我的收藏夹';
-            switchPage('home');
-            const favDishes = dishes.filter(d => favoriteRecords.includes(d.id));
-            renderHome(favDishes);
+            document.getElementById('page-main-title').textContent = '⭐ 我的收藏夹'; switchPage('home');
+            renderHome(dishes.filter(d => favoriteRecords.includes(d.id)));
             document.getElementById('category-bar').innerHTML = '';
         }
 
-        // --- 首页渲染 ---
         function renderCategories() {
             const cats = ['全部', ...new Set(dishes.map(d => d.category || '未分类'))];
-            document.getElementById('category-bar').innerHTML = cats.map(c => `
-                    <div class="cat-chip ${c === currentCategory ? 'active' : ''}" onclick="filterCat('${c}')">${c}</div>
-                `).join('');
+            document.getElementById('category-bar').innerHTML = cats.map(c => `<div class="cat-chip ${c === currentCategory ? 'active' : ''}" onclick="filterCat('${c}')">${c}</div>`).join('');
         }
+        function filterCat(cat) { currentCategory = cat; renderCategories(); renderHome(); }
 
-        function filterCat(cat) {
-            currentCategory = cat;
-            renderCategories();
-            renderHome();
-        }
-
-        function renderHome(customList = null) {
-            const list = customList || (currentCategory === '全部' ? dishes : dishes.filter(d => d.category === currentCategory));
+        function renderHome(list = null) {
+            const displayList = list || (currentCategory === '全部' ? dishes : dishes.filter(d => d.category === currentCategory));
             const grid = document.getElementById('menu-grid');
-
-            if (list.length === 0) {
-                grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#999; padding:3rem 0;">这里空空如也~</div>';
-            } else {
-                grid.innerHTML = list.map(d => `
+            if (displayList.length === 0) { grid.innerHTML = '<div style="text-align:center; color:#999; padding:3rem 0; grid-column:1/-1">这里空空如也~</div>'; }
+            else {
+                grid.innerHTML = displayList.map(d => `
                         <div class="dish-card" onclick="showDetail(${d.id})">
-                            <img src="${d.image || 'https://via.placeholder.com/150'}" loading="lazy" alt="${d.name}">
-                            <div class="dish-info">
-                                <div class="dish-name">${d.name}</div>
-                                <div class="card-stats">
-                                    <span class="score-badge">${d.avgScore} 分</span>
-                                    <span class="likes-count">❤️ ${d.likes}</span>
-                                </div>
-                            </div>
-                        </div>
-                    `).join('');
+                            <img src="${d.image || 'https://via.placeholder.com/150'}" loading="lazy">
+                            <div class="dish-info"><div class="dish-name">${d.name}</div><div class="card-stats"><span class="score-badge">${d.avgScore} 分</span><span class="likes-count">❤️ ${d.likes}</span></div></div>
+                        </div>`).join('');
             }
             document.getElementById('home-loading').style.display = 'none';
         }
 
-        // --- 详情与评价 ---
+        // --- 详情与 AI 自动点评 ---
         async function showDetail(id) {
             const dish = dishes.find(d => d.id === id);
             switchPage('detail');
@@ -742,244 +872,235 @@
 
             const res = await fetch(`${API_URL}/reviews?dish_id=eq.${id}&select=*&order=created_at.desc`, { headers });
             const reviews = await res.json();
+            const isLiked = likedRecords.includes(dish.id), isFav = favoriteRecords.includes(dish.id);
 
-            const isLiked = likedRecords.includes(dish.id);
-            const isFav = favoriteRecords.includes(dish.id);
+            // 检查大模型是否已经评论过这道菜
+            const aiName = '🤖 AI 厨神';
+            const hasAIReview = reviews.some(r => r.user_name === aiName);
+
+            let reviewsHTML = reviews.map(r => `
+                    <li class="review-item" style="${r.user_name === aiName ? 'border: 2px solid var(--primary-light); background: #fffdfb;' : ''}">
+                        <div class="review-header"><span class="review-name" style="${r.user_name === aiName ? 'color: var(--primary-color);' : ''}">${r.user_name}</span><span class="review-score">${r.score} 分</span></div>
+                        <div class="review-text">${r.content}</div>
+                    </li>
+                `).join('');
+
+            // 如果 AI 还没评论，展示骨架占位，并触发生成
+            if (!hasAIReview && !isAIGenerating[id]) {
+                reviewsHTML = `<li class="review-item ai-typing" id="ai-typing-${id}">🤖 AI 厨神正在仔细品鉴这道菜，撰写专属食评中...</li>` + reviewsHTML;
+                triggerAutoAIReview(dish);
+            }
 
             document.getElementById('detail-content').innerHTML = `
                     <img src="${dish.image}" class="detail-cover" loading="lazy">
                     <div class="detail-header-row">
                         <div class="detail-title">${dish.name}</div>
                         <div class="action-btns">
-                            <button onclick="toggleLike(${dish.id})">
-                                <span style="color:${isLiked ? '#ff6b6b' : '#ccc'}">❤️</span> <span style="font-size:1rem; color:#555">${dish.likes}</span>
-                            </button>
+                            <button onclick="toggleLike(${dish.id})"><span style="color:${isLiked ? '#ff6b6b' : '#ccc'}">❤️</span> <span style="font-size:1rem; color:#555" id="like-count-${dish.id}">${dish.likes}</span></button>
                             <div style="width:1px; background:#eee; height:20px;"></div>
-                            <button onclick="toggleFav(${dish.id})">
-                                <span style="color:${isFav ? '#fca048' : '#ccc'}">⭐</span>
-                            </button>
+                            <button onclick="toggleFav(${dish.id})"><span style="color:${isFav ? '#fca048' : '#ccc'}">⭐</span></button>
                         </div>
                     </div>
                     <div class="detail-desc">${dish.description || '这道菜美味到忘记写描述了~'}</div>
-
                     <div class="reviews-section">
                         <h3>📝 食客点评 (${reviews.length})</h3>
-                        <ul style="margin:1rem 0; padding:0;">
-                            ${reviews.length === 0 ? '<div style="text-align:center; padding:2rem 0; color:#999;">快来抢首评！</div>' : reviews.map(r => `
-                                <li class="review-item">
-                                    <div class="review-header">
-                                        <span class="review-name">${r.user_name}</span>
-                                        <span class="review-score">${r.score} 分</span>
-                                    </div>
-                                    <div class="review-text">${r.content}</div>
-                                </li>
-                            `).join('')}
+                        <ul style="margin:1rem 0; padding:0;" id="reviews-list-${id}">
+                            ${reviews.length === 0 && hasAIReview ? '<div style="text-align:center; padding:2rem 0; color:#999;">快来抢人类的首评！</div>' : reviewsHTML}
                         </ul>
-
                         <div style="margin-top: 2rem;">
                             <input type="text" id="rev-name" class="review-input" placeholder="输入你的吃货昵称" value="神秘食客">
-                            <div class="score-slider">
-                                <span style="font-weight:bold; color:#555;">打个分:</span>
-                                <input type="range" id="rev-score" min="0" max="100" value="95" oninput="document.getElementById('score-val').textContent=this.value">
-                                <span id="score-val" style="color:var(--secondary-color); font-weight:900; font-size:1.2rem; min-width:30px;">95</span>
-                            </div>
+                            <div class="score-slider"><span style="font-weight:bold; color:#555;">打个分:</span><input type="range" id="rev-score" min="0" max="100" value="95" oninput="document.getElementById('score-val').textContent=this.value"><span id="score-val" style="color:var(--secondary-color); font-weight:900; font-size:1.2rem; min-width:30px;">95</span></div>
                             <textarea id="rev-content" class="review-input" placeholder="味道如何？口感怎样？" rows="3"></textarea>
                             <button class="submit-btn" onclick="submitReview(${id})">提交美味点评</button>
                         </div>
-                    </div>
-                `;
-            document.getElementById('detail-loading').style.display = 'none';
-            document.getElementById('detail-content').style.display = 'block';
+                    </div>`;
+            document.getElementById('detail-loading').style.display = 'none'; document.getElementById('detail-content').style.display = 'block';
         }
 
-        async function submitReview(dishId) {
-            const user_name = document.getElementById('rev-name').value;
-            const content = document.getElementById('rev-content').value;
-            const score = document.getElementById('rev-score').value;
-            if (!content) return alert("写点内容吧！");
+        // ==========================================
+        // 🚀 大模型自动评价核心逻辑
+        // ==========================================
+        async function triggerAutoAIReview(dish) {
+            isAIGenerating[dish.id] = true; // 锁定，防止重复调用
 
-            await fetch(`${API_URL}/reviews`, {
-                method: 'POST',
-                headers,
-                body: JSON.stringify({ dish_id: dishId, user_name, content, score: parseInt(score) })
-            });
-            showDetail(dishId);
-            loadDishes();
+            const prompt = `你是一位专业、幽默的美食鉴赏家。请仔细观察下面这张菜品图片，结合菜名【${dish.name}】和简介【${dish.description || '无'}】，写一段约60-80字的生动食评，并给出一个评分(0-100)。
+请务必只返回严格合法的 JSON 格式，不要包含任何 markdown 符号(如 \`\`\`json) 或其他解释文字，格式严格如下：
+{"score": 95, "content": "色泽红亮，肥而不腻，隔着屏幕都能闻到香味，这是一道难得的佳肴！"}`;
+
+            try {
+                const response = await fetch(LLM_API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${LLM_API_KEY}` },
+                    body: JSON.stringify({
+                        model: LLM_MODEL,
+                        messages: [{
+                            role: "user",
+                            content: [
+                                { type: "text", text: prompt },
+                                // 这里直接将 Supabase 的图片 URL 传给大模型 (大多数模型直接支持 URL 看图)
+                                { type: "image_url", image_url: { url: dish.image } }
+                            ]
+                        }],
+                        temperature: 0.7
+                    })
+                });
+
+                if (!response.ok) throw new Error("大模型调用失败");
+                const data = await response.json();
+                const aiReply = data.choices[0].message.content;
+
+                // 使用正则安全地提取 JSON 内容
+                const jsonMatch = aiReply.match(/\{[\s\S]*\}/);
+                if (jsonMatch) {
+                    const reviewData = JSON.parse(jsonMatch[0]);
+
+                    // 将大模型的评价提交到 Supabase
+                    await fetch(`${API_URL}/reviews`, {
+                        method: 'POST',
+                        headers,
+                        body: JSON.stringify({
+                            dish_id: dish.id,
+                            user_name: '🤖 AI 厨神',
+                            content: reviewData.content,
+                            score: parseInt(reviewData.score)
+                        })
+                    });
+
+                    // 重新刷新详情页，展示 AI 评价
+                    if (document.getElementById(`reviews-list-${dish.id}`)) {
+                        showDetail(dish.id);
+                    }
+                }
+            } catch (err) {
+                console.error("AI 自动评价生成失败:", err);
+                const typingEl = document.getElementById(`ai-typing-${dish.id}`);
+                if (typingEl) typingEl.style.display = 'none'; // 失败则静默隐藏，不打扰用户
+            }
+        }
+        // ==========================================
+
+        async function submitReview(dishId) {
+            const user_name = document.getElementById('rev-name').value, content = document.getElementById('rev-content').value, score = document.getElementById('rev-score').value;
+            if (!content) return alert("写点内容吧！");
+            await fetch(`${API_URL}/reviews`, { method: 'POST', headers, body: JSON.stringify({ dish_id: dishId, user_name, content, score: parseInt(score) }) });
+            showDetail(dishId); loadDishes();
         }
 
         async function toggleLike(id) {
             if (likedRecords.includes(id)) return alert("你已经给这道菜比过心啦 ❤️");
-            const dish = dishes.find(d => d.id === id);
-            dish.likes += 1;
-            likedRecords.push(id);
-            localStorage.setItem('my_likes', JSON.stringify(likedRecords));
-            showDetail(id);
-            try { await fetch(`${API_URL}/dishes?id=eq.${id}`, { method: 'PATCH', headers, body: JSON.stringify({ likes: dish.likes }) }); } catch (err) { }
+            const dish = dishes.find(d => d.id === id); dish.likes += 1;
+            likedRecords.push(id); localStorage.setItem('my_likes', JSON.stringify(likedRecords));
+            document.getElementById(`like-count-${id}`).textContent = dish.likes; // 即时反馈
+            try { await fetch(`${API_URL}/dishes?id=eq.${id}`, { method: 'PATCH', headers, body: JSON.stringify({ likes: dish.likes }) }); } catch (e) { }
         }
 
         function toggleFav(id) {
             const idx = favoriteRecords.indexOf(id);
-            if (idx > -1) favoriteRecords.splice(idx, 1);
-            else favoriteRecords.push(id);
-            localStorage.setItem('my_favorites', JSON.stringify(favoriteRecords));
-            showDetail(id);
+            if (idx > -1) favoriteRecords.splice(idx, 1); else favoriteRecords.push(id);
+            localStorage.setItem('my_favorites', JSON.stringify(favoriteRecords)); showDetail(id);
         }
 
-        // --- 管理逻辑：新增 (集成压缩功能) ---
-        async function submitNewDish() {
-            const name = document.getElementById('add-name').value;
-            const category = document.getElementById('add-cat').value;
-            const description = document.getElementById('add-desc').value;
-            const fileInput = document.getElementById('add-img-file');
+        // --- 🤖 AI 助手聊天页 (保持原有) ---
+        let chatMessagesHistory = [{ role: "system", content: "你是一位热情、专业、幽默的中国大厨，精通各大菜系。当用户发送菜品图片时，识别并给出详细的家常做法步骤。语气要像老朋友。" }];
+        let chatPendingImageBase64 = null;
 
-            if (!name || fileInput.files.length === 0) return alert("菜品名称和美食图片缺一不可哦！");
-
-            const btn = document.querySelector('.admin-section .submit-btn');
-            btn.textContent = '图片压缩上传中...';
-            btn.disabled = true;
-
-            try {
-                // 1. 获取原图并进行前端压缩
-                let rawFile = fileInput.files[0];
-                let file = await compressImage(rawFile, 800, 0.7); // 宽度限制 800px，画质 70%
-
-                const fileName = `${Date.now()}.jpg`; // 压缩后统一输出为 jpg
-                const bucketName = 'dishes';
-
-                // 2. 上传压缩后的图片
-                const uploadRes = await fetch(`https://fwmxyvoekvcofbttfaba.supabase.co/storage/v1/object/${bucketName}/${fileName}`, {
-                    method: 'POST',
-                    headers: { 'apikey': API_KEY, 'Authorization': `Bearer ${API_KEY}`, 'Content-Type': 'image/jpeg' },
-                    body: file
-                });
-
-                if (!uploadRes.ok) throw new Error("图片上传失败");
-
-                const imageUrl = `https://fwmxyvoekvcofbttfaba.supabase.co/storage/v1/object/public/${bucketName}/${fileName}`;
-
-                // 3. 写入数据库
-                const dbRes = await fetch(`${API_URL}/dishes`, {
-                    method: 'POST',
-                    headers,
-                    body: JSON.stringify({ name, category, image: imageUrl, description, likes: 0 })
-                });
-
-                if (dbRes.ok) {
-                    alert("🎉 新菜品发布成功！");
-                    location.reload();
-                } else { throw new Error("写入数据库失败"); }
-
-            } catch (error) {
-                console.error(error);
-                alert(error.message);
-                btn.textContent = '立即上架';
-                btn.disabled = false;
+        async function handleChatImage(input) {
+            if (input.files && input.files[0]) {
+                try {
+                    const compressedFile = await compressImage(input.files[0], 600, 0.6);
+                    chatPendingImageBase64 = await fileToBase64(compressedFile);
+                    document.getElementById('chat-img-preview').src = chatPendingImageBase64;
+                    document.getElementById('chat-img-preview-container').style.display = 'block';
+                } catch (e) { alert("图片处理失败"); }
             }
         }
 
-        // --- 管理逻辑：修改弹窗 (集成压缩功能) ---
+        function clearChatImage() { chatPendingImageBase64 = null; document.getElementById('chat-img-upload').value = ''; document.getElementById('chat-img-preview-container').style.display = 'none'; }
+
+        async function sendChatMessage() {
+            const inputField = document.getElementById('chat-input'), userText = inputField.value.trim(), hasImage = chatPendingImageBase64 !== null;
+            if (!userText && !hasImage) return;
+
+            let uiContent = hasImage ? `<img src="${chatPendingImageBase64}"><br>` + (userText || "请帮我看这道菜？") : userText;
+            appendChatBubble('user', uiContent);
+
+            let apiContent = hasImage ? [{ type: "text", text: userText || "识别这张图，告诉我做法。" }, { type: "image_url", image_url: { url: chatPendingImageBase64 } }] : userText;
+            chatMessagesHistory.push({ role: "user", content: apiContent });
+            inputField.value = ''; clearChatImage();
+
+            appendChatBubble('ai', '正在看图翻阅菜谱，请稍候... 🍳', 'loading-msg');
+            try {
+                const response = await fetch(LLM_API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${LLM_API_KEY}` }, body: JSON.stringify({ model: LLM_MODEL, messages: chatMessagesHistory, max_tokens: 1000, temperature: 0.7 }) });
+                if (!response.ok) throw new Error(await response.text());
+                const data = await response.json(); const aiReply = data.choices[0].message.content;
+                document.getElementById('loading-msg').remove();
+                appendChatBubble('ai', aiReply.replace(/\n/g, '<br>'));
+                chatMessagesHistory.push({ role: "assistant", content: aiReply });
+            } catch (error) {
+                document.getElementById('loading-msg').remove(); appendChatBubble('ai', `<span style="color:red;">哎呀，网络开小差了。(${error.message})</span>`);
+                chatMessagesHistory.pop();
+            }
+        }
+        function appendChatBubble(role, htmlContent, id = null) {
+            const chatBox = document.getElementById('chat-box'), msgDiv = document.createElement('div'); msgDiv.className = `chat-msg ${role}`; msgDiv.innerHTML = htmlContent; if (id) msgDiv.id = id;
+            chatBox.appendChild(msgDiv); chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // --- 管理逻辑：增改删 ---
+        async function submitNewDish() {
+            const name = document.getElementById('add-name').value, category = document.getElementById('add-cat').value, description = document.getElementById('add-desc').value, fileInput = document.getElementById('add-img-file');
+            if (!name || fileInput.files.length === 0) return alert("菜品名称和美食图片缺一不可哦！");
+            const btn = document.querySelector('.admin-section .submit-btn'); btn.textContent = '图片压缩上传中...'; btn.disabled = true;
+            try {
+                let file = await compressImage(fileInput.files[0], 800, 0.7);
+                const fileName = `${Date.now()}.jpg`, bucketName = 'dishes';
+                const uploadRes = await fetch(`https://fwmxyvoekvcofbttfaba.supabase.co/storage/v1/object/${bucketName}/${fileName}`, { method: 'POST', headers: { 'apikey': API_KEY, 'Authorization': `Bearer ${API_KEY}`, 'Content-Type': 'image/jpeg' }, body: file });
+                if (!uploadRes.ok) throw new Error("图片上传失败");
+                const imageUrl = `https://fwmxyvoekvcofbttfaba.supabase.co/storage/v1/object/public/${bucketName}/${fileName}`;
+                const dbRes = await fetch(`${API_URL}/dishes`, { method: 'POST', headers, body: JSON.stringify({ name, category, image: imageUrl, description, likes: 0 }) });
+                if (dbRes.ok) { alert("🎉 新菜品发布成功！"); location.reload(); } else throw new Error("写入数据库失败");
+            } catch (e) { alert(e.message); btn.textContent = '立即上架'; btn.disabled = false; }
+        }
+
         function openEditModal(id) {
-            const dish = dishes.find(d => d.id === id);
-            if (!dish) return;
-            currentlyEditingId = id;
-
-            document.getElementById('edit-name').value = dish.name;
-            document.getElementById('edit-cat').value = dish.category || '';
-            document.getElementById('edit-desc').value = dish.description || '';
-            document.getElementById('edit-img-file').value = '';
-
+            const dish = dishes.find(d => d.id === id); if (!dish) return; currentlyEditingId = id;
+            document.getElementById('edit-name').value = dish.name; document.getElementById('edit-cat').value = dish.category || ''; document.getElementById('edit-desc').value = dish.description || ''; document.getElementById('edit-img-file').value = '';
             document.getElementById('edit-modal').style.display = 'flex';
         }
-
-        function closeEditModal() {
-            document.getElementById('edit-modal').style.display = 'none';
-            currentlyEditingId = null;
-        }
+        function closeEditModal() { document.getElementById('edit-modal').style.display = 'none'; currentlyEditingId = null; }
 
         async function saveEditDish() {
             if (!currentlyEditingId) return;
             const dish = dishes.find(d => d.id === currentlyEditingId);
-
-            const name = document.getElementById('edit-name').value.trim();
-            const category = document.getElementById('edit-cat').value.trim();
-            const description = document.getElementById('edit-desc').value.trim();
-            const fileInput = document.getElementById('edit-img-file');
-
+            const name = document.getElementById('edit-name').value.trim(), category = document.getElementById('edit-cat').value.trim(), description = document.getElementById('edit-desc').value.trim(), fileInput = document.getElementById('edit-img-file');
             if (!name) return alert("菜品名称不能为空！");
-
-            const btn = document.getElementById('btn-save-edit');
-            btn.textContent = '保存中...';
-            btn.disabled = true;
+            const btn = document.getElementById('btn-save-edit'); btn.textContent = '保存中...'; btn.disabled = true;
 
             try {
                 let imageUrl = dish.image;
-
-                // 如果选择了新图片，先压缩，再上传
                 if (fileInput.files.length > 0) {
-                    btn.textContent = '压缩图片中...';
-                    let rawFile = fileInput.files[0];
-                    let file = await compressImage(rawFile, 800, 0.7);
-
-                    const fileName = `${Date.now()}.jpg`;
-                    const bucketName = 'dishes';
-
-                    const uploadRes = await fetch(`https://fwmxyvoekvcofbttfaba.supabase.co/storage/v1/object/${bucketName}/${fileName}`, {
-                        method: 'POST',
-                        headers: { 'apikey': API_KEY, 'Authorization': `Bearer ${API_KEY}`, 'Content-Type': 'image/jpeg' },
-                        body: file
-                    });
-
+                    btn.textContent = '压缩图片中...'; let file = await compressImage(fileInput.files[0], 800, 0.7);
+                    const fileName = `${Date.now()}.jpg`, bucketName = 'dishes';
+                    const uploadRes = await fetch(`https://fwmxyvoekvcofbttfaba.supabase.co/storage/v1/object/${bucketName}/${fileName}`, { method: 'POST', headers: { 'apikey': API_KEY, 'Authorization': `Bearer ${API_KEY}`, 'Content-Type': 'image/jpeg' }, body: file });
                     if (!uploadRes.ok) throw new Error("新图片上传失败");
                     imageUrl = `https://fwmxyvoekvcofbttfaba.supabase.co/storage/v1/object/public/${bucketName}/${fileName}`;
                 }
-
                 btn.textContent = '更新数据库...';
-                const res = await fetch(`${API_URL}/dishes?id=eq.${currentlyEditingId}`, {
-                    method: 'PATCH',
-                    headers,
-                    body: JSON.stringify({ name, category, description, image: imageUrl })
-                });
-
-                if (res.ok) {
-                    alert("✅ 修改成功！");
-                    location.reload();
-                } else {
-                    throw new Error("更新数据库失败");
-                }
-            } catch (error) {
-                console.error(error);
-                alert("修改失败: " + error.message);
-            } finally {
-                btn.textContent = '保存修改';
-                btn.disabled = false;
-            }
+                const res = await fetch(`${API_URL}/dishes?id=eq.${currentlyEditingId}`, { method: 'PATCH', headers, body: JSON.stringify({ name, category, description, image: imageUrl }) });
+                if (res.ok) { alert("✅ 修改成功！"); location.reload(); } else throw new Error("更新数据库失败");
+            } catch (e) { alert("修改失败: " + e.message); } finally { btn.textContent = '保存修改'; btn.disabled = false; }
         }
 
-        // --- 管理逻辑：删除 ---
         async function deleteDish(id) {
-            if (!confirm("确定要把这道菜下架吗？操作不可恢复哦！")) return;
+            if (!confirm("确定要把这道菜下架吗？")) return;
             const res = await fetch(`${API_URL}/dishes?id=eq.${id}`, { method: 'DELETE', headers });
             if (res.ok) { alert("菜品已下架"); location.reload(); }
         }
 
-        // --- 渲染列表 ---
         function renderAdminList() {
-            document.getElementById('admin-list').innerHTML = dishes.map(d => `
-                    <div class="admin-item">
-                        <div style="flex: 1; padding-right: 12px; overflow: hidden;">
-                            <strong style="font-size: 1.1rem; color: #2d3436;">${d.name}</strong>
-                            <div style="font-size:0.85rem; color:#b2bec3; margin-top: 4px;">${d.category} · ❤️ ${d.likes}</div>
-                            <div class="admin-item-desc">${d.description || '<span style="color:#ccc; font-style:italic;">暂无描述</span>'}</div>
-                        </div>
-                        <div class="admin-actions">
-                            <button class="btn-edit" onclick="openEditModal(${d.id})">修改</button>
-                            <button class="btn-delete" onclick="deleteDish(${d.id})">下架</button>
-                        </div>
-                    </div>
-                `).join('');
+            document.getElementById('admin-list').innerHTML = dishes.map(d => `<div class="admin-item"><div style="flex: 1; padding-right: 12px; overflow: hidden;"><strong style="font-size: 1.1rem; color: #2d3436;">${d.name}</strong><div style="font-size:0.85rem; color:#b2bec3; margin-top: 4px;">${d.category} · ❤️ ${d.likes}</div><div class="admin-item-desc">${d.description || '<span style="color:#ccc; font-style:italic;">暂无描述</span>'}</div></div><div class="admin-actions"><button class="btn-edit" onclick="openEditModal(${d.id})">修改</button><button class="btn-delete" onclick="deleteDish(${d.id})">下架</button></div></div>`).join('');
         }
 
-        // 初始化加载
         loadDishes();
     </script>
 </body>
