@@ -923,7 +923,7 @@
         async function triggerAutoAIReview(dish) {
             isAIGenerating[dish.id] = true; // 锁定，防止重复调用
 
-            const prompt = `你是一位专业、幽默的美食鉴赏家。请仔细观察下面这张菜品图片，结合菜名【${dish.name}】和简介【${dish.description || '无'}】，写一段约60-80字的生动食评，并给出一个评分(0-100)。
+            const prompt = `你是一位专业、幽默的美食鉴赏家。请仔细观察下面这张菜品图片，结合菜名【${dish.name}】和简介【${dish.description || '无'}】，写一段约60-80字的生动食评，要指出菜品的不足之处，并给出一个评分(0-100)。
 请务必只返回严格合法的 JSON 格式，不要包含任何 markdown 符号(如 \`\`\`json) 或其他解释文字，格式严格如下：
 {"score": 95, "content": "色泽红亮，肥而不腻，隔着屏幕都能闻到香味，这是一道难得的佳肴！"}`;
 
