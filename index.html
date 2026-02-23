@@ -7,7 +7,7 @@
     <style>
         /* --- 🎨 颜色与变量定义 --- */
         :root {
-            --primary-color: #fca048; /* 主色调：珊瑚红（有食欲） */
+            --primary-color: #ff6b6b; /* 主色调：珊瑚红（有食欲） */
             --primary-light: #fff0f0; /* 浅主色（用于背景） */
             --secondary-color: #fca048; /* 辅色：暖橙色（评分、星星） */
             --bg-color: #fcfaf8; /* 整体背景：非常淡的暖灰色 */
@@ -362,6 +362,18 @@
                 box-shadow: 0 2px 8px rgba(255, 107, 107, 0.2);
             }
 
+        .btn-cancel {
+            background: #f1f2f6;
+            color: #555;
+            border: none;
+            padding: 1.2rem;
+            border-radius: 16px;
+            width: 100%;
+            font-weight: 800;
+            font-size: 1.1rem;
+            cursor: pointer;
+        }
+
         /* --- 管理页 --- */
         .admin-section {
             background: white;
@@ -385,20 +397,90 @@
             border-bottom: 1px solid #f1f2f6;
             background: white;
             border-radius: 12px;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.8rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+
+        /* 管理按钮：修改和删除 */
+        .admin-actions {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .btn-edit {
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 0.8rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
         }
 
         .btn-delete {
             background: #ff4757;
             color: white;
             border: none;
-            padding: 0.5rem 1rem;
+            padding: 0.5rem 0.8rem;
             border-radius: 8px;
             cursor: pointer;
             font-weight: bold;
         }
 
-        /* --- 底部导航 (毛玻璃效果) --- */
+        /* 描述省略 */
+        .admin-item-desc {
+            font-size: 0.85rem;
+            color: #636e72;
+            margin-top: 6px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            line-height: 1.4;
+        }
+
+        /* --- 弹窗样式 (Modal) --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 1rem;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            background: white;
+            width: 100%;
+            max-width: 500px;
+            padding: 1.8rem;
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* --- 底部导航 --- */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -486,6 +568,29 @@
         </div>
     </div>
 
+    <div id="edit-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 style="margin-bottom: 1.5rem; color: var(--text-main); font-size: 1.4rem;">📝 修改菜品信息</h3>
+
+            <label style="font-size: 0.9rem; color: #555; font-weight: bold;">菜品名称</label>
+            <input type="text" id="edit-name" class="admin-input" placeholder="菜名">
+
+            <label style="font-size: 0.9rem; color: #555; font-weight: bold;">分类</label>
+            <input type="text" id="edit-cat" class="admin-input" placeholder="分类">
+
+            <label style="font-size: 0.9rem; color: #555; font-weight: bold;">更换图片 <span style="font-size: 0.8rem; font-weight: normal; color: #ff6b6b;">(不选代表使用原图)</span></label>
+            <input type="file" id="edit-img-file" class="admin-input" accept="image/*" style="padding: 0.8rem 1rem;">
+
+            <label style="font-size: 0.9rem; color: #555; font-weight: bold;">菜品描述</label>
+            <textarea id="edit-desc" class="admin-input" placeholder="描述..." rows="3"></textarea>
+
+            <div style="display: flex; gap: 10px; margin-top: 1rem;">
+                <button class="submit-btn" id="btn-save-edit" style="flex: 2;" onclick="saveEditDish()">保存修改</button>
+                <button class="btn-cancel" style="flex: 1;" onclick="closeEditModal()">取消</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const API_URL = 'https://fwmxyvoekvcofbttfaba.supabase.co/rest/v1';
         const API_KEY = 'sb_publishable_QuDMdXCTwFXWCm2Vaigm8w_UFrHqCNP';
@@ -495,6 +600,7 @@
         let currentCategory = '全部';
         let likedRecords = JSON.parse(localStorage.getItem('my_likes')) || [];
         let favoriteRecords = JSON.parse(localStorage.getItem('my_favorites')) || [];
+        let currentlyEditingId = null; // 记录当前正在修改哪个菜
 
         // --- 初始化数据 ---
         async function loadDishes() {
@@ -503,10 +609,8 @@
                 const res = await fetch(`${API_URL}/dishes?select=*&order=id.desc`, { headers });
                 dishes = await res.json();
 
-                // 确保 likes 字段存在
                 dishes.forEach(d => { d.likes = d.likes || 0; });
 
-                // 计算平均分
                 await Promise.all(dishes.map(async d => {
                     const rRes = await fetch(`${API_URL}/reviews?dish_id=eq.${d.id}&select=score`, { headers });
                     const reviews = await rRes.json();
@@ -524,7 +628,7 @@
         function checkAdmin() {
             const pw = prompt("请输入管理密码：");
             if (pw === "123456") { switchPage('admin'); }
-            else if (pw !== null) { alert("密码错误，非店长禁止入内！"); }
+            else if (pw !== null) { alert("密码错误，禁止入内！"); }
         }
 
         function switchPage(page) {
@@ -547,7 +651,7 @@
             switchPage('home');
             const favDishes = dishes.filter(d => favoriteRecords.includes(d.id));
             renderHome(favDishes);
-            document.getElementById('category-bar').innerHTML = ''; // 收藏夹隐藏分类栏
+            document.getElementById('category-bar').innerHTML = '';
         }
 
         // --- 首页渲染 ---
@@ -587,7 +691,7 @@
             document.getElementById('home-loading').style.display = 'none';
         }
 
-        // --- 详情与评价 ---
+        // --- 详情与评价 (省略了重复的阅读部分，保持原样) ---
         async function showDetail(id) {
             const dish = dishes.find(d => d.id === id);
             switchPage('detail');
@@ -658,30 +762,17 @@
                 body: JSON.stringify({ dish_id: dishId, user_name, content, score: parseInt(score) })
             });
             showDetail(dishId);
-            loadDishes(); // 后台静默更新数据
+            loadDishes();
         }
 
-        // --- 点赞与收藏逻辑 ---
         async function toggleLike(id) {
             if (likedRecords.includes(id)) return alert("你已经给这道菜比过心啦 ❤️");
-
-            // 1. 本地更新
             const dish = dishes.find(d => d.id === id);
             dish.likes += 1;
             likedRecords.push(id);
             localStorage.setItem('my_likes', JSON.stringify(likedRecords));
-
-            // 2. 刷新当前页面 UI
             showDetail(id);
-
-            // 3. 将新的点赞数同步到数据库
-            try {
-                await fetch(`${API_URL}/dishes?id=eq.${id}`, {
-                    method: 'PATCH',
-                    headers,
-                    body: JSON.stringify({ likes: dish.likes })
-                });
-            } catch (err) { console.error("点赞同步到数据库失败", err); }
+            try { await fetch(`${API_URL}/dishes?id=eq.${id}`, { method: 'PATCH', headers, body: JSON.stringify({ likes: dish.likes }) }); } catch (err) { }
         }
 
         function toggleFav(id) {
@@ -692,7 +783,7 @@
             showDetail(id);
         }
 
-        // --- 管理逻辑：上传图片与发布 ---
+        // --- 管理逻辑：新增 ---
         async function submitNewDish() {
             const name = document.getElementById('add-name').value;
             const category = document.getElementById('add-cat').value;
@@ -702,7 +793,7 @@
 
             if (!name || !file) return alert("菜品名称和美食图片缺一不可哦！");
 
-            const btn = document.querySelector('.submit-btn');
+            const btn = document.querySelector('.admin-section .submit-btn');
             btn.textContent = '厨房正在烹饪中...';
             btn.disabled = true;
 
@@ -740,20 +831,104 @@
             }
         }
 
+        // --- 🌟 管理逻辑：全能修改弹窗 ---
+        function openEditModal(id) {
+            const dish = dishes.find(d => d.id === id);
+            if (!dish) return;
+            currentlyEditingId = id;
+
+            // 填入旧数据
+            document.getElementById('edit-name').value = dish.name;
+            document.getElementById('edit-cat').value = dish.category || '';
+            document.getElementById('edit-desc').value = dish.description || '';
+            document.getElementById('edit-img-file').value = ''; // 清空文件选择器
+
+            // 显示弹窗
+            document.getElementById('edit-modal').style.display = 'flex';
+        }
+
+        function closeEditModal() {
+            document.getElementById('edit-modal').style.display = 'none';
+            currentlyEditingId = null;
+        }
+
+        async function saveEditDish() {
+            if (!currentlyEditingId) return;
+            const dish = dishes.find(d => d.id === currentlyEditingId);
+
+            const name = document.getElementById('edit-name').value.trim();
+            const category = document.getElementById('edit-cat').value.trim();
+            const description = document.getElementById('edit-desc').value.trim();
+            const fileInput = document.getElementById('edit-img-file');
+
+            if (!name) return alert("菜品名称不能为空！");
+
+            const btn = document.getElementById('btn-save-edit');
+            btn.textContent = '保存中...';
+            btn.disabled = true;
+
+            try {
+                let imageUrl = dish.image; // 默认使用原来的图片
+
+                // 如果用户选择了新图片，就上传新图片并替换链接
+                if (fileInput.files.length > 0) {
+                    const file = fileInput.files[0];
+                    const fileExt = file.name.split('.').pop();
+                    const fileName = `${Date.now()}.${fileExt}`;
+                    const bucketName = 'dishes';
+
+                    const uploadRes = await fetch(`https://fwmxyvoekvcofbttfaba.supabase.co/storage/v1/object/${bucketName}/${fileName}`, {
+                        method: 'POST',
+                        headers: { 'apikey': API_KEY, 'Authorization': `Bearer ${API_KEY}`, 'Content-Type': file.type },
+                        body: file
+                    });
+
+                    if (!uploadRes.ok) throw new Error("新图片上传失败");
+                    imageUrl = `https://fwmxyvoekvcofbttfaba.supabase.co/storage/v1/object/public/${bucketName}/${fileName}`;
+                }
+
+                // 统一提交所有修改到数据库
+                const res = await fetch(`${API_URL}/dishes?id=eq.${currentlyEditingId}`, {
+                    method: 'PATCH',
+                    headers,
+                    body: JSON.stringify({ name, category, description, image: imageUrl })
+                });
+
+                if (res.ok) {
+                    alert("✅ 修改成功！");
+                    location.reload(); // 刷新页面同步最新数据
+                } else {
+                    throw new Error("更新数据库失败");
+                }
+            } catch (error) {
+                console.error(error);
+                alert("修改失败: " + error.message);
+            } finally {
+                btn.textContent = '保存修改';
+                btn.disabled = false;
+            }
+        }
+
+        // --- 管理逻辑：删除 ---
         async function deleteDish(id) {
             if (!confirm("确定要把这道菜下架吗？操作不可恢复哦！")) return;
             const res = await fetch(`${API_URL}/dishes?id=eq.${id}`, { method: 'DELETE', headers });
             if (res.ok) { alert("菜品已下架"); location.reload(); }
         }
 
+        // --- 渲染列表 ---
         function renderAdminList() {
             document.getElementById('admin-list').innerHTML = dishes.map(d => `
                     <div class="admin-item">
-                        <div>
+                        <div style="flex: 1; padding-right: 12px; overflow: hidden;">
                             <strong style="font-size: 1.1rem; color: #2d3436;">${d.name}</strong>
                             <div style="font-size:0.85rem; color:#b2bec3; margin-top: 4px;">${d.category} · ❤️ ${d.likes}</div>
+                            <div class="admin-item-desc">${d.description || '<span style="color:#ccc; font-style:italic;">暂无描述</span>'}</div>
                         </div>
-                        <button class="btn-delete" onclick="deleteDish(${d.id})">下架</button>
+                        <div class="admin-actions">
+                            <button class="btn-edit" onclick="openEditModal(${d.id})">修改</button>
+                            <button class="btn-delete" onclick="deleteDish(${d.id})">下架</button>
+                        </div>
                     </div>
                 `).join('');
         }
