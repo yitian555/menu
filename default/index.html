@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>独家菜单</title>
+    <style>
+        /* --- 基础样式 --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background: #f5f2ed;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+        }
+
+        .app-container {
+            max-width: 600px;
+            width: 100%;
+            background: white;
+            min-height: 100vh;
+            position: relative;
+            box-shadow: 0 0 30px rgba(0,0,0,0.05);
+        }
+
+        /* 加载指示器 */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            color: #e67e22;
+            font-size: 1.2rem;
+        }
+
+            .loading::after {
+                content: '';
+                width: 20px;
+                height: 20px;
+                margin-left: 10px;
+                border: 3px solid #e67e22;
+                border-top-color: transparent;
+                border-radius: 50%;
+                animation: spinner 0.8s linear infinite;
+            }
+
+        @keyframes spinner {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* 页面与头部 */
+        .page {
+            display: none;
+            padding: 1rem;
+            padding-bottom: 80px;
+        }
+
+            .page.active {
+                display: block;
+            }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 0 1rem;
+            background: white;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+            .header h1 {
+                font-size: 1.8rem;
+                font-weight: 700;
+                color: #2c3e50;
+            }
+
+        .back-btn {
+            font-size: 1.8rem;
+            padding: 0.5rem 1rem 0.5rem 0;
+            background: none;
+            border: none;
+            color: #e67e22;
+            display: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+            .back-btn.active {
+                display: block;
+            }
+
+        /* --- 新增：分类导航栏 --- */
+        .category-bar {
+            display: flex;
+            gap: 0.8rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #f0e9e0;
+        }
+
+            .category-bar::-webkit-scrollbar {
+                display: none;
+            }
+
+        .cat-chip {
+            background: #f0e9e0;
+            color: #555;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.95rem;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+            .cat-chip.active {
+                background: #e67e22;
+                color: white;
+                font-weight: bold;
+            }
+
+        /* 菜品网格与卡片 */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 1rem;
+        }
+
+        .dish-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+            cursor: pointer;
+            border: 1px solid #f0e9e0;
+            position: relative;
+        }
+
+            .dish-card:active {
+                transform: scale(0.98);
+            }
+
+            .dish-card img {
+                width: 100%;
+                height: 140px;
+                object-fit: cover;
+                background: #e9c9a0;
+            }
+
+        .dish-info {
+            padding: 0.8rem;
+        }
+
+        .dish-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .rating-summary {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.3rem;
+            font-size: 0.8rem;
+        }
+
+        .score-badge {
+            background: #e67e22;
+            color: white;
+            font-weight: 700;
+            padding: 0.1rem 0.5rem;
+            border-radius: 30px;
+        }
+
+        .stars-container {
+            color: #f5b342;
+            letter-spacing: -2px;
+        }
+
+        /* --- 新增：卡片操作区 (点赞/收藏) --- */
+        .card-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            border-top: 1px dashed #eee;
+            padding-top: 0.5rem;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            font-size: 0.9rem;
+            color: #888;
+            display: flex;
+            align-items: center;
+            gap: 0.2rem;
+            cursor: pointer;
+        }
+
+            .action-btn.liked {
+                color: #e74c3c;
+            }
+
+            .action-btn.favorited {
+                color: #f39c12;
+            }
+
+        /* 详情页 */
+        .dish-detail-image {
+            width: 100%;
+            height: 250px;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+            .dish-detail-image img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+        /* --- 新增：详情页悬浮操作区 --- */
+        .detail-actions-float {
+            position: absolute;
+            bottom: -15px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .float-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+            .float-btn:active {
+                transform: scale(0.9);
+            }
+
+            .float-btn.liked {
+                color: #e74c3c;
+                background: #ffebee;
+            }
+
+            .float-btn.favorited {
+                color: #f39c12;
+                background: #fff8e1;
+            }
+
+        .dish-detail-header {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            margin-top: 1rem;
+        }
+
+        .dish-detail-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .dish-detail-score {
+            background: #e67e22;
+            color: white;
+            padding: 0.4rem 1rem;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 1.3rem;
+        }
+
+        .dish-description {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #555;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        /* 评价区样式 (保留原版) */
+        .reviews-section {
+            margin-top: 1rem;
+        }
+
+        .reviews-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.2rem;
+        }
+
+        .reviews-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .average-box {
+            background: #f8f0e6;
+            padding: 0.4rem 1rem;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .average-score {
+            font-weight: 700;
+            color: #e67e22;
+            font-size: 1.2rem;
+        }
+
+        .review-list {
+            list-style: none;
+            max-height: 350px;
+            overflow-y: auto;
+            margin-bottom: 1.5rem;
+            padding-right: 0.3rem;
+        }
+
+        .review-item {
+            background: #f9f7f4;
+            border-radius: 16px;
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .review-header {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .reviewer-name {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .review-score {
+            background: #e67e22;
+            color: white;
+            padding: 0.2rem 0.6rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .review-date {
+            margin-left: auto;
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        .review-text {
+            color: #444;
+            line-height: 1.4;
+            font-size: 0.95rem;
+        }
+
+        .add-review {
+            background: white;
+            border-top: 1px solid #eee;
+            padding: 1.2rem 0 0.5rem;
+        }
+
+        .name-input input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 2px solid #eee;
+            border-radius: 30px;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+
+            .name-input input:focus {
+                outline: none;
+                border-color: #e67e22;
+            }
+
+        .score-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #555;
+        }
+
+        .score-slider {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.2rem;
+        }
+
+        input[type=range] {
+            flex: 1;
+            height: 8px;
+            -webkit-appearance: none;
+            background: linear-gradient(to right, #f5b342 0%, #e67e22 100%);
+            border-radius: 10px;
+        }
+
+            input[type=range]::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                width: 28px;
+                height: 28px;
+                background: white;
+                border-radius: 50%;
+                box-shadow: 0 2px 10px rgba(230, 126, 34, 0.3);
+                border: 2px solid #e67e22;
+                cursor: pointer;
+            }
+
+        .score-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #e67e22;
+            min-width: 3rem;
+            text-align: center;
+        }
+
+        .review-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #eee;
+            border-radius: 16px;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            resize: none;
+        }
+
+            .review-input:focus {
+                outline: none;
+                border-color: #e67e22;
+            }
+
+        .submit-review {
+            background: #e67e22;
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 40px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #999;
+            padding: 2rem;
+            background: #f9f7f4;
+            border-radius: 16px;
+        }
+
+        /* 底部导航 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            max-width: 600px;
+            width: 100%;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 0.8rem 0;
+            border-top: 1px solid #f0e9e0;
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.2rem;
+            color: #999;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+            .nav-item.active {
+                color: #e67e22;
+            }
+
+            .nav-item span:first-child {
+                font-size: 1.4rem;
+            }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div id="home-page" class="page active">
+            <div class="header">
+                <h1 id="page-main-title">🍽️ 杨家私房菜</h1>
+            </div>
+
+            <div class="category-bar" id="category-bar">
+            </div>
+
+            <div id="home-loading" class="loading">加载菜单中...</div>
+            <div class="menu-grid" id="menu-grid" style="display: none;"></div>
+        </div>
+
+        <div id="detail-page" class="page">
+            <div class="header">
+                <button class="back-btn" id="back-btn">←</button>
+                <h1 id="detail-title">菜品详情</h1>
+                <div style="width:40px"></div>
+            </div>
+            <div id="detail-loading" class="loading">加载评价中...</div>
+            <div id="detail-content" style="display: none;"></div>
+        </div>
+
+        <div class="bottom-nav">
+            <div class="nav-item active" data-page="home">
+                <span>🏠</span><span>首页</span>
+            </div>
+            <div class="nav-item" data-page="popular">
+                <span>🔥</span><span>热门</span>
+            </div>
+            <div class="nav-item" data-page="favorites">
+                <span>⭐</span><span>我的收藏</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ---------- 配置原生 API 接口 ----------
+        const API_URL = 'https://fwmxyvoekvcofbttfaba.supabase.co/rest/v1';
+        const API_KEY = 'sb_publishable_QuDMdXCTwFXWCm2Vaigm8w_UFrHqCNP';
+
+        const headers = {
+            'apikey': API_KEY,
+            'Authorization': `Bearer ${API_KEY}`,
+            'Content-Type': 'application/json'
+        };
+
+        // ---------- 状态管理 ----------
+        let dishes = [];
+        let currentDish = null;
+        let currentCategory = '全部'; // 当前选中分类
+        let currentNav = 'home'; // 当前底部导航状态 (home, favorites)
+
+        // 从本地存储读取已点赞和已收藏的记录 (如果清空浏览器缓存会消失)
+        let likedRecords = JSON.parse(localStorage.getItem('my_likes')) || [];
+        let favoriteRecords = JSON.parse(localStorage.getItem('my_favorites')) || [];
+
+        // DOM 元素
+        const homePage = document.getElementById('home-page');
+        const detailPage = document.getElementById('detail-page');
+        const menuGrid = document.getElementById('menu-grid');
+        const categoryBar = document.getElementById('category-bar');
+        const pageMainTitle = document.getElementById('page-main-title');
+        const backBtn = document.getElementById('back-btn');
+
+        // ---------- 封装原生 Fetch 请求 ----------
+        async function apiFetch(endpoint, options = {}) {
+            const res = await fetch(`${API_URL}/${endpoint}`, {
+                ...options,
+                headers: { ...headers, ...options.headers }
+            });
+            if (!res.ok) throw new Error(`API Error: ${res.status}`);
+            return await res.json();
+        }
+
+        function getStarsFromScore(avgScore) {
+            const full = Math.floor(avgScore / 20);
+            return '★'.repeat(full) + '☆'.repeat(5 - full);
+        }
+
+        // ---------- 加载数据 ----------
+        async function loadDishes() {
+            document.getElementById('home-loading').style.display = 'flex';
+            try {
+                dishes = await apiFetch('dishes?select=*&order=id');
+
+                // 处理缺失字段的兼容性（防止数据库没加字段时报错）
+                dishes.forEach(d => {
+                    d.category = d.category || '未分类';
+                    d.likes = d.likes || 0;
+                });
+
+                // 获取评价分数
+                await Promise.all(dishes.map(async (dish) => {
+                    const reviews = await apiFetch(`reviews?dish_id=eq.${dish.id}&select=score`);
+                    dish.reviewCount = reviews.length;
+                    dish.avgScore = reviews.length > 0 ? Math.round(reviews.reduce((t, r) => t + r.score, 0) / reviews.length) : 0;
+                }));
+
+                renderCategories();
+                renderHomePage();
+            } catch (error) {
+                document.getElementById('home-loading').textContent = '网络加载失败，请刷新';
+            }
+        }
+
+        // ---------- 渲染分类导航 ----------
+        function renderCategories() {
+            if (currentNav === 'favorites') {
+                categoryBar.style.display = 'none'; // 收藏页隐藏分类
+                return;
+            }
+            categoryBar.style.display = 'flex';
+
+            // 提取去重后的所有分类
+            const categories = ['全部', ...new Set(dishes.map(d => d.category))];
+
+            categoryBar.innerHTML = categories.map(cat => `
+                        <div class="cat-chip ${cat === currentCategory ? 'active' : ''}"
+                             onclick="switchCategory('${cat}')">${cat}</div>
+                    `).join('');
+        }
+
+        function switchCategory(cat) {
+            currentCategory = cat;
+            renderCategories();
+            renderHomePage();
+        }
+
+        // ---------- 交互逻辑：点赞与收藏 ----------
+        async function toggleLike(event, dishId) {
+            event.stopPropagation(); // 防止触发卡片点击进入详情页
+
+            const dish = dishes.find(d => d.id === dishId);
+            const isLiked = likedRecords.includes(dishId);
+
+            if (isLiked) {
+                alert("你已经点过赞啦！");
+                return;
+            }
+
+            // 1. 更新本地状态与UI (乐观更新)
+            likedRecords.push(dishId);
+            localStorage.setItem('my_likes', JSON.stringify(likedRecords));
+            dish.likes += 1;
+
+            renderHomePage();
+            if (currentDish && currentDish.id === dishId) renderDetailContent(currentDish, await loadReviewsForDish(dishId));
+
+            // 2. 发送请求更新数据库
+            try {
+                await apiFetch(`dishes?id=eq.${dishId}`, {
+                    method: 'PATCH',
+                    body: JSON.stringify({ likes: dish.likes })
+                });
+            } catch (err) {
+                console.error('点赞同步失败', err);
+            }
+        }
+
+        function toggleFavorite(event, dishId) {
+            event.stopPropagation();
+            const index = favoriteRecords.indexOf(dishId);
+
+            if (index > -1) {
+                favoriteRecords.splice(index, 1); // 取消收藏
+            } else {
+                favoriteRecords.push(dishId); // 加入收藏
+            }
+            localStorage.setItem('my_favorites', JSON.stringify(favoriteRecords));
+
+            renderHomePage();
+            if (currentDish && currentDish.id === dishId) showDetailPage(currentDish); // 刷新详情页状态
+        }
+
+        // ---------- 渲染首页 ----------
+        function renderHomePage() {
+            // 根据状态过滤要显示的菜品
+            let displayDishes = dishes;
+            if (currentNav === 'favorites') {
+                displayDishes = dishes.filter(d => favoriteRecords.includes(d.id));
+            } else if (currentCategory !== '全部') {
+                displayDishes = dishes.filter(d => d.category === currentCategory);
+            }
+
+            if (displayDishes.length === 0) {
+                menuGrid.innerHTML = `<div class="empty-state" style="grid-column: 1/-1;">这里空空如也~</div>`;
+            } else {
+                menuGrid.innerHTML = displayDishes.map(dish => {
+                    const isLiked = likedRecords.includes(dish.id);
+                    const isFav = favoriteRecords.includes(dish.id);
+
+                    return `
+                                <div class="dish-card" onclick="showDetailPage(${dish.id})">
+                                    <img src="${dish.image}" alt="${dish.name}">
+                                    <div class="dish-info">
+                                        <div class="dish-name">${dish.name}</div>
+                                        <div class="rating-summary">
+                                            <span class="score-badge">${dish.avgScore}</span>
+                                            <span class="stars-container">${getStarsFromScore(dish.avgScore)}</span>
+                                        </div>
+                                        <div class="card-actions">
+                                            <button class="action-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike(event, ${dish.id})">
+                                                ${isLiked ? '❤️' : '🤍'} ${dish.likes}
+                                            </button>
+                                            <button class="action-btn ${isFav ? 'favorited' : ''}" onclick="toggleFavorite(event, ${dish.id})">
+                                                ${isFav ? '⭐ 已收藏' : '☆ 收藏'}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                }).join('');
+            }
+
+            document.getElementById('home-loading').style.display = 'none';
+            menuGrid.style.display = 'grid';
+        }
+
+        // ---------- 显示详情页 ----------
+        async function loadReviewsForDish(dishId) {
+            try { return await apiFetch(`reviews?dish_id=eq.${dishId}&select=*&order=created_at.desc`); }
+            catch { return []; }
+        }
+
+        async function showDetailPage(dishOrId) {
+            const dish = typeof dishOrId === 'object' ? dishOrId : dishes.find(d => d.id === dishOrId);
+            currentDish = dish;
+
+            homePage.classList.remove('active');
+            detailPage.classList.add('active');
+            backBtn.classList.add('active');
+
+            document.getElementById('detail-loading').style.display = 'flex';
+            document.getElementById('detail-content').style.display = 'none';
+
+            const reviews = await loadReviewsForDish(dish.id);
+            renderDetailContent(dish, reviews);
+        }
+
+        function renderDetailContent(dish, reviews) {
+            const avgScore = reviews.length > 0 ? Math.round(reviews.reduce((t, r) => t + r.score, 0) / reviews.length) : 0;
+            const isLiked = likedRecords.includes(dish.id);
+            const isFav = favoriteRecords.includes(dish.id);
+
+            document.getElementById('detail-content').innerHTML = `
+                        <div class="dish-detail-image">
+                            <img src="${dish.image}" alt="${dish.name}">
+                            <div class="detail-actions-float">
+                                <button class="float-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike(event, ${dish.id})">
+                                    ${isLiked ? '❤️' : '🤍'}
+                                </button>
+                                <button class="float-btn ${isFav ? 'favorited' : ''}" onclick="toggleFavorite(event, ${dish.id})">
+                                    ${isFav ? '⭐' : '☆'}
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="dish-detail-header">
+                            <div class="dish-detail-name">${dish.name}</div>
+                            <div class="dish-detail-score">${avgScore}分</div>
+                        </div>
+                        <div class="dish-description" style="font-size:0.9rem; color:#888; margin-bottom: 0.5rem">分类：${dish.category} | 点赞：${dish.likes}</div>
+                        <div class="dish-description">${dish.description}</div>
+
+                        <div class="reviews-section">
+                            <div class="reviews-header">
+                                <span class="reviews-title">📝 食客评价 (${reviews.length})</span>
+                            </div>
+                            ${reviews.length === 0 ? `<div class="empty-state">暂无评价，来抢沙发！</div>` :
+                    `<ul class="review-list">
+                                ${reviews.map(r => `
+                                    <li class="review-item">
+                                        <div class="review-header">
+                                            <span class="reviewer-name">${r.user_name}</span>
+                                            <span class="review-score">${r.score}</span>
+                                        </div>
+                                        <div class="review-text">${r.content}</div>
+                                    </li>
+                                `).join('')}
+                            </ul>`}
+
+                            <div class="add-review">
+                                <input type="text" id="user-name" class="review-input" style="border-radius:30px; padding:0.8rem 1rem;" placeholder="你的大名（可选）" value="匿名食客">
+                                <div class="score-slider">
+                                    <span style="font-weight:bold; color:#555">评分</span>
+                                    <input type="range" id="score-slider" min="0" max="100" value="90">
+                                    <span class="score-value" id="score-value">90</span>
+                                </div>
+                                <textarea class="review-input" id="review-text" placeholder="菜品味道如何？" rows="3"></textarea>
+                                <button class="submit-review" onclick="submitReview()">提交评价</button>
+                            </div>
+                        </div>
+                    `;
+
+            document.getElementById('score-slider')?.addEventListener('input', (e) => {
+                document.getElementById('score-value').textContent = e.target.value;
+            });
+
+            document.getElementById('detail-loading').style.display = 'none';
+            document.getElementById('detail-content').style.display = 'block';
+        }
+
+        // ---------- 提交评价 (保留原逻辑) ----------
+        async function submitReview() {
+            if (!currentDish) return;
+            const content = document.getElementById('review-text').value.trim();
+            if (!content) return alert('请填写评价内容');
+
+            const btn = document.querySelector('.submit-review');
+            btn.disabled = true; btn.textContent = '提交中...';
+
+            try {
+                await apiFetch('reviews', {
+                    method: 'POST',
+                    headers: { 'Prefer': 'return=representation' },
+                    body: JSON.stringify({
+                        dish_id: currentDish.id,
+                        user_name: document.getElementById('user-name').value || '匿名食客',
+                        score: parseInt(document.getElementById('score-slider').value),
+                        content: content
+                    })
+                });
+                showDetailPage(currentDish); // 刷新
+            } catch (error) {
+                alert('提交失败');
+                btn.disabled = false; btn.textContent = '提交评价';
+            }
+        }
+
+        // ---------- 导航逻辑 ----------
+        backBtn.addEventListener('click', () => {
+            homePage.classList.add('active');
+            detailPage.classList.remove('active');
+            backBtn.classList.remove('active');
+        });
+
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+                item.classList.add('active');
+
+                const page = item.dataset.page;
+                currentNav = page === 'favorites' ? 'favorites' : 'home';
+
+                homePage.classList.add('active');
+                detailPage.classList.remove('active');
+                backBtn.classList.remove('active');
+
+                if (page === 'popular') {
+                    alert('热门菜品榜单 (按评分):\n' + [...dishes].sort((a, b) => b.avgScore - a.avgScore).map(d => `${d.name}: ${d.avgScore}分`).join('\n'));
+                    // 恢复状态
+                    currentNav = 'home';
+                    document.querySelector('[data-page="home"]').classList.add('active');
+                    item.classList.remove('active');
+                } else {
+                    pageMainTitle.textContent = page === 'favorites' ? '⭐ 我的收藏' : '🍽️ 杨家私房菜';
+                    renderCategories();
+                    renderHomePage();
+                }
+            });
+        });
+
+        // ---------- 初始化 ----------
+        loadDishes();
+    </script>
+</body>
+</html>
